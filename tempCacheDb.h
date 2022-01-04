@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>
+#include <string.h>
 
 typedef struct {
   void *key;
@@ -13,14 +14,15 @@ typedef struct {
   int deleteMarker;
 } cacheObject;
 
+typedef int (*keyCompare)(void*, void*, int);
+
 typedef struct
 {
-  int nSize;
   char *name;
-  pthread_mutex_t *cacheMutex;
+  keyCompare keyCmp;
 
-  int (*keyCmp)(void *key1, void *key2);
-
+  int nSize;
+  pthread_mutex_t cacheMutex;
   cacheObject **keyValStore;
 } tempCache;
 
@@ -33,15 +35,17 @@ enum errCodes {
   errInit
 };
 
-int initTempCache(tempCache *cache, char *cacheName) {
+int initTempCache(tempCache *cache, char *cacheName, keyCompare keyCmp) {
   cache->name = cacheName;
+  cache->keyCmp = keyCmp;
 
+  cache->nSize = 0;
   cache = malloc(sizeof(tempCache));
   if (cache == NULL) {
     return errMalloc;
   }
 
-  if (pthread_mutex_init(cache->cacheMutex, NULL) != 0) {
+  if (pthread_mutex_init(&cache->cacheMutex, NULL) != 0) {
     return errInit;
   }
 
@@ -56,30 +60,35 @@ int freeTempCache(tempCache *cache, char *cacheName) {
   }
 
   free(cache);
-  pthread_mutex_destroy(cache->cacheMutex);
+  pthread_mutex_destroy(&cache->cacheMutex);
 
   return success;
 }
 
-int genericGetByKey(tempCache *cache, void *key, cacheObject *cO) {
+int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject *resultingCO) {
+  pthread_mutex_lock(&cache->cacheMutex);
   for (int i = 0; i < cache->nSize; i++) {
-    if(cache->keyCmp(cache->keyValStore[i]->key, key)) {
-      if (cO != NULL) {
-        cO = cache->keyValStore[i];
+    if(cache->keyCmp(cache->keyValStore[i]->key, key, keySize)) {
+      if (resultingCO != NULL) {
+        resultingCO = cache->keyValStore[i];
       }
       return success;
     }
   }
-  cO = NULL;
+  pthread_mutex_unlock(&cache->cacheMutex);
+  resultingCO = NULL;
   return success;
 }
 
-// todo: cpy memory if found
+// cashObject must be properly allocated!
 int genericPushToCache(tempCache *cache, cacheObject *cO) {
-  cacheObject *tempCo;
-  if (genericGetByKey(cache, cO->key, tempCo)) {
-    tempCo->val = cO->val;
+  cacheObject *tempCoRef;
+  if (genericGetByKey(cache, cO->key, cO->keySize, tempCoRef)) {
+    pthread_mutex_lock(&cache->cacheMutex);
+    tempCoRef->val = cO->val;
+    pthread_mutex_unlock(&cache->cacheMutex);
   } else {
+    pthread_mutex_lock(&cache->cacheMutex);
     if (cache->nSize == 0) {
       cache->keyValStore = malloc(sizeof(cacheObject*));
       if (cache->keyValStore == NULL) {
@@ -93,6 +102,7 @@ int genericPushToCache(tempCache *cache, cacheObject *cO) {
     }
     cache->keyValStore[cache->nSize] = cO;
     cache->nSize++;
+    pthread_mutex_unlock(&cache->cacheMutex);
   }
 
   return success;
