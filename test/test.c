@@ -64,7 +64,7 @@ int main() {
     printf("err code %d \n", err);
     return 1;
   }
-  
+
   cacheObject *insert4 = malloc(sizeof(cacheObject));
   insert4->key = "peterr";
   insert4->keySize = 5;
@@ -77,6 +77,12 @@ int main() {
   }
 
   printCache(cache1);
+
+  err = listenDbServer(cache1, 8080);
+  if (err != 0) {
+    printf("err code %d \n", err);
+    return 1;
+  }
 
   return 0;
 }
