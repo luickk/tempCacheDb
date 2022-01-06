@@ -170,6 +170,8 @@ int listenDbServer(tempCache *cache, int port) {
       close(newSocket);
       return errMalloc;
     }
+    clientArgs->socket = newSocket;
+    clientArgs->cache = cache;
 
     if(pthread_create(&pthread, NULL, clientHandle, (void*)clientArgs) != 0 ) {
       return errIO;
