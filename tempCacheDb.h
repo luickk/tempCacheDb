@@ -16,8 +16,7 @@ typedef struct {
 
 typedef int (*keyCompare)(void*, void*, int);
 
-typedef struct
-{
+typedef struct {
   char *name;
   keyCompare keyCmp;
 
@@ -65,26 +64,28 @@ int freeTempCache(tempCache *cache, char *cacheName) {
   return success;
 }
 
-int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject *resultingCO) {
+int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject **resultingCo) {
   pthread_mutex_lock(&cache->cacheMutex);
   for (int i = 0; i < cache->nSize; i++) {
-    if(cache->keyCmp(cache->keyValStore[i]->key, key, keySize)) {
-      if (resultingCO != NULL) {
-        resultingCO = cache->keyValStore[i];
+    if (cache->keyValStore[i]->keySize == keySize) {
+      if(cache->keyCmp(cache->keyValStore[i]->key, key, keySize)) {
+        *resultingCo = cache->keyValStore[i];
+        return 1;
       }
-      return success;
     }
   }
   pthread_mutex_unlock(&cache->cacheMutex);
-  resultingCO = NULL;
-  return success;
+  resultingCo = NULL;
+  return 0;
 }
 
+// TODO free tempCoRef val
 // cashObject must be properly allocated!
 int genericPushToCache(tempCache *cache, cacheObject *cO) {
   cacheObject *tempCoRef;
-  if (genericGetByKey(cache, cO->key, cO->keySize, tempCoRef)) {
+  if (genericGetByKey(cache, cO->key, cO->keySize, &tempCoRef)) {
     pthread_mutex_lock(&cache->cacheMutex);
+    // free(tempCoRef->val);
     tempCoRef->val = cO->val;
     pthread_mutex_unlock(&cache->cacheMutex);
   } else {

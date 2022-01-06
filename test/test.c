@@ -3,7 +3,18 @@
 #include "../tempCacheDb.h"
 
 int strKeyCmp(void *key1, void *key2, int size) {
-  return strncmp(key1, key2, size);
+
+  /* does not work with void pointers? returns always 0 */
+  // int t = strncmp(key1, key2, size);
+
+  char *ckey1 = (char*)key1;
+  char *ckey2 = (char*)key2;
+  for (int i = 0; i <= size; i++) {
+    if (ckey1[i]!=ckey2[i]) {
+      return 0;
+    }
+  }
+  return 1;
 }
 
 void printCache(tempCache *cache) {
@@ -24,10 +35,8 @@ int main() {
   cacheObject *insert = malloc(sizeof(cacheObject));
   insert->key = "test";
   insert->keySize = 4;
-
-  insert->val = "testVal /n";
-  insert->valSize = 9;
-
+  insert->val = "testVal";
+  insert->valSize = 6;
   err = genericPushToCache(cache1, insert);
   if (err != 0) {
     printf("err code %d \n", err);
@@ -35,13 +44,33 @@ int main() {
   }
 
   cacheObject *insert2 = malloc(sizeof(cacheObject));
-  insert->key = "peter";
-  insert->keySize = 4;
-
-  insert->val = "testVal2 /n";
-  insert->valSize = 9;
-
+  insert2->key = "peter2";
+  insert2->keySize = 5;
+  insert2->val = "testVal2";
+  insert2->valSize = 6;
   err = genericPushToCache(cache1, insert2);
+  if (err != 0) {
+    printf("err code %d \n", err);
+    return 1;
+  }
+
+  cacheObject *insert3 = malloc(sizeof(cacheObject));
+  insert3->key = "peterr";
+  insert3->keySize = 5;
+  insert3->val = "testVal3";
+  insert3->valSize = 6;
+  err = genericPushToCache(cache1, insert3);
+  if (err != 0) {
+    printf("err code %d \n", err);
+    return 1;
+  }
+  
+  cacheObject *insert4 = malloc(sizeof(cacheObject));
+  insert4->key = "peterr";
+  insert4->keySize = 5;
+  insert4->val = "rrrr";
+  insert4->valSize = 4;
+  err = genericPushToCache(cache1, insert4);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
