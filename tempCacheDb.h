@@ -46,7 +46,6 @@ typedef struct {
 typedef struct {
   int sockfd, connfd;
   struct sockaddr_in servaddr, cli;
-
 } tempCacheClient;
 
 struct pthreadClientHandleArgs {
@@ -146,6 +145,41 @@ int genericPushToCache(tempCache *cache, cacheObject *cO) {
   return success;
 }
 
+int cpyCacheObject(cacheObject *dest, cacheObject *src) {
+  if (dest == NULL) {
+    dest = malloc(sizeof(cacheObject));
+    if(dest==NULL) {
+      return errMalloc;
+    }
+  }
+
+  if (dest->val == NULL && src->val != NULL) {
+    dest->val = malloc(src->valSize);
+    if(dest==NULL) {
+      return errMalloc;
+    }
+
+    dest->valSize = src->valSize;
+    memcpy(dest->val, src->val, dest->valSize);
+  }
+  if (dest->key == NULL && src->key != NULL) {
+    dest->key = malloc(src->keySize);
+    if(dest==NULL) {
+      return errMalloc;
+    }
+
+    dest->keySize = src->keySize;
+    memcpy(dest->key, src->key, dest->keySize);
+  }
+
+  if (dest->key != NULL && dest->keySize == src->keySize) {
+    memcpy(dest->key, src->key, dest->keySize);
+  }
+  if (dest->val != NULL && dest->valSize == src->valSize) {
+    memcpy(dest->key, src->key, dest->keySize);
+  }
+}
+
 int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int port) {
   cacheClient->sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (cacheClient->sockfd == -1) {
@@ -167,28 +201,35 @@ int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int po
 }
 
 int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO) {
-  int sendBuffSize = sizeof(cO->keySize) + cO->keySize + sizeof(cO->valSize) + cO->valSize;
+  int keySizeSize = sizeof(cO->keySize);
+  int sendBuffSize = keySizeSize + cO->keySize + keySizeSize + cO->valSize;
   int netByteOrderSize = 0;
-  char *sendBuff = malloc(sizeof(char) * sendBuffSize);
+  char *sendBuff = malloc(keySizeSize * sendBuffSize);
+  if (sendBuff == NULL) {
+    return errMalloc;
+  }
   sendBuffSize = 0;
   netByteOrderSize = htons(cO->keySize);
-  memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(cO->keySize));
-  sendBuffSize += sizeof(cO->keySize);
+  memcpy(sendBuff+sendBuffSize, &netByteOrderSize, keySizeSize);
+  sendBuffSize += keySizeSize;
   memcpy(sendBuff+sendBuffSize, cO->key, cO->keySize);
   sendBuffSize += cO->keySize;
   netByteOrderSize = htons(cO->valSize);
-  memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(cO->valSize));
-  sendBuffSize += sizeof(cO->valSize);
+  memcpy(sendBuff+sendBuffSize, &netByteOrderSize, keySizeSize);
+  sendBuffSize += keySizeSize;
   memcpy(sendBuff+sendBuffSize, cO->val, cO->valSize);
   sendBuffSize += cO->valSize;
 
-  write(cacheClient->sockfd, sendBuff, sendBuffSize);
+  if (write(cacheClient->sockfd, sendBuff, sendBuffSize) == -1) {
+    return errIO;
+  }
+
+  return success;
 }
 
 void *clientHandle(void *clientArgs) {
   struct pthreadClientHandleArgs *argss = (struct pthreadClientHandleArgs*)clientArgs;
   int socket = argss->socket;
-
 
   char *readBuff = malloc(sizeof(char)*SERVER_BUFF_SIZE);
   char *respBuff = malloc(sizeof(char)*SERVER_BUFF_SIZE);
@@ -197,41 +238,62 @@ void *clientHandle(void *clientArgs) {
     pthread_exit(NULL);
   }
 
+  cacheObject *tempCo = malloc(sizeof(cacheObject));
+  if (tempCo == NULL) {
+    close(socket);
+    pthread_exit(NULL);
+  }
+
   int readBuffSize = 0;
   uint16_t tempProtocolSize = 0;
-  cacheObject *tempCo = malloc(sizeof(cacheObject));
+  int readSizePointer = 0;
   int nextIsKey = 1;
+  int keySizeSize = sizeof(tempCo->keySize);
+  cacheObject *copiedCo;
   while(1) {
     readBuffSize = read(socket, readBuff, SERVER_BUFF_SIZE);
     if (readBuffSize == -1) {
       close(socket);
       pthread_exit(NULL);
     }
-
     tempProtocolSize = 0;
-    for (int iElement = 0; readBuffSize >= sizeof(tempCo->keySize); iElement++) {
-      memcpy(&tempProtocolSize, readBuff, sizeof(tempCo->keySize));
+    if (readBuffSize >= keySizeSize) {
+      readSizePointer = 0;
+      memcpy(&tempProtocolSize, readBuff, keySizeSize);
+      readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
-      // printf("fd: %d \n", tempProtocolSize);
-      if (readBuffSize >= sizeof(tempCo->keySize)+tempProtocolSize) {
-        if (nextIsKey) {
-          tempCo->keySize = tempProtocolSize;
-          tempCo->key = malloc(sizeof(char)*tempProtocolSize);
-          memcpy(tempCo->key, readBuff, tempProtocolSize);
-          nextIsKey = 0;
-          printf("key: %.*s \n", tempProtocolSize, tempCo->key);
-        } else {
-          tempCo->valSize = tempProtocolSize;
-          tempCo->val = malloc(sizeof(char)*tempProtocolSize);
-          memcpy(tempCo->val, readBuff, tempProtocolSize);
-          nextIsKey = 1;
+
+      if (readBuffSize >= tempProtocolSize+keySizeSize) {
+        tempCo->keySize = tempProtocolSize;
+        tempCo->key = malloc(sizeof(char)*tempProtocolSize);
+        if (tempCo->key == NULL) {
+          close(socket);
+          pthread_exit(NULL);
         }
+        memcpy(tempCo->key, readBuff+readSizePointer, tempProtocolSize);
+        readSizePointer += tempProtocolSize;
       }
-      // printf("iElement: %d, k: %s, v: %s \n", iElement, (char*)tempCo->key, (char*)tempCo->val);
+
+      memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
+      readSizePointer += keySizeSize;
+      tempProtocolSize = ntohs(tempProtocolSize);
+
+      if (readBuffSize >= tempProtocolSize+keySizeSize) {
+        tempCo->valSize = tempProtocolSize;
+        tempCo->val = malloc(sizeof(char)*tempProtocolSize);
+        if (tempCo->key == NULL) {
+          close(socket);
+          pthread_exit(NULL);
+        }
+        memcpy(tempCo->val, readBuff+readSizePointer, tempProtocolSize);
+
+        copiedCo = NULL;
+        cpyCacheObject(copiedCo, tempCo);
+        cacheClientPushObject(argss->cache, copiedCo);
+      }
     }
   }
 }
-
 
 int listenDbServer(tempCache *cache, int port) {
   memset(&cache->tempClient, 0, sizeof cache->tempClient);

@@ -49,5 +49,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "test/CMakeFiles/tempCacheDbTest.dir/DependInfo.cmake"
+  "test/CMakeFiles/tempCacheDbServerTest.dir/DependInfo.cmake"
+  "test/CMakeFiles/tempCacheDbClientTest.dir/DependInfo.cmake"
   )

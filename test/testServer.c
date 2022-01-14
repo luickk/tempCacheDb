@@ -78,21 +78,11 @@ int main() {
 
   printCache(cache1);
 
-  // err = listenDbServer(cache1, 8080);
-  // if (err != 0) {
-  //   printf("err code %d \n", err);
-  //   return 1;
-  // }
-
-  tempCacheClient *cacheClient = malloc(sizeof(tempCacheClient));
-  err = cacheClientConnect(cacheClient, "127.0.0.1", 8080);
-  cacheClientPushObject(cacheClient, insert3);
-
+  err = listenDbServer(cache1, 8080);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
   }
-
 
   return 0;
 }

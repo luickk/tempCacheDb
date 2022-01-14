@@ -4,4 +4,4 @@ mkdir build
 cd build
 cmake ..
 make
-./../build/test/tempCacheDbTest
+./../build/test/tempCacheDbServerTest

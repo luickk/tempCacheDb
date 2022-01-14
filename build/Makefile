@@ -117,17 +117,30 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named tempCacheDbTest
+# Target rules for targets named tempCacheDbServerTest
 
 # Build rule for target.
-tempCacheDbTest: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tempCacheDbTest
-.PHONY : tempCacheDbTest
+tempCacheDbServerTest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tempCacheDbServerTest
+.PHONY : tempCacheDbServerTest
 
 # fast build rule for target.
-tempCacheDbTest/fast:
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbTest.dir/build.make test/CMakeFiles/tempCacheDbTest.dir/build
-.PHONY : tempCacheDbTest/fast
+tempCacheDbServerTest/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbServerTest.dir/build.make test/CMakeFiles/tempCacheDbServerTest.dir/build
+.PHONY : tempCacheDbServerTest/fast
+
+#=============================================================================
+# Target rules for targets named tempCacheDbClientTest
+
+# Build rule for target.
+tempCacheDbClientTest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tempCacheDbClientTest
+.PHONY : tempCacheDbClientTest
+
+# fast build rule for target.
+tempCacheDbClientTest/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbClientTest.dir/build.make test/CMakeFiles/tempCacheDbClientTest.dir/build
+.PHONY : tempCacheDbClientTest/fast
 
 # Help Target
 help:
@@ -137,7 +150,8 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... tempCacheDbTest"
+	@echo "... tempCacheDbClientTest"
+	@echo "... tempCacheDbServerTest"
 .PHONY : help
 
 

@@ -2,4 +2,5 @@
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles/edit_cache.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/rebuild_cache.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/edit_cache.dir
-/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/tempCacheDbTest.dir
+/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/tempCacheDbServerTest.dir
+/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/tempCacheDbClientTest.dir
