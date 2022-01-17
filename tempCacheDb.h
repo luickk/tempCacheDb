@@ -14,7 +14,7 @@
 
 #define NET_KEY_VAL_SIZE_LIMIT 255
 
-#define MAX_CACHE_SIZE 500
+#define MAX_CACHE_SIZE 1000000
 
 typedef struct {
   void *key;
@@ -108,6 +108,7 @@ int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject **resu
 }
 
 // TODO fix nCacheSize overflow
+// TODO fix freeing issue
 // cashObject must be properly allocated!
 int genericPushToCache(tempCache *cache, cacheObject *cO) {
   cacheObject *tempCoRef;
@@ -117,7 +118,7 @@ int genericPushToCache(tempCache *cache, cacheObject *cO) {
     pthread_mutex_lock(&cache->cacheMutex);
     // free(tempCoRef->key);
     // free(tempCoRef->val);
-    free(tempCoRef);
+    // free(tempCoRef);
     tempCoRef = cO;
     pthread_mutex_unlock(&cache->cacheMutex);
   } else {
@@ -145,39 +146,41 @@ int genericPushToCache(tempCache *cache, cacheObject *cO) {
   return success;
 }
 
-int cpyCacheObject(cacheObject *dest, cacheObject *src) {
-  if (dest == NULL) {
-    dest = malloc(sizeof(cacheObject));
-    if(dest==NULL) {
+int cpyCacheObject(cacheObject **dest, cacheObject *src) {
+
+  if (*dest != NULL && (*dest)->valSize == src->valSize) {
+    memcpy((*dest)->key, src->key, (*dest)->keySize);
+  }
+  if ((*dest) != NULL && (*dest)->keySize == src->keySize) {
+    memcpy((*dest)->key, src->key, (*dest)->keySize);
+  }
+
+  if ((*dest) == NULL) {
+    (*dest) = malloc(sizeof(cacheObject));
+    if((*dest)==NULL) {
       return errMalloc;
+    }
+    if (src->val != NULL) {
+      (*dest)->val = malloc(src->valSize);
+      if((*dest)==NULL) {
+        return errMalloc;
+      }
+
+      (*dest)->valSize = src->valSize;
+      memcpy((*dest)->val, src->val, (*dest)->valSize);
+    }
+    if (src->key != NULL) {
+      (*dest)->key = malloc(src->keySize);
+      if((*dest)==NULL) {
+        return errMalloc;
+      }
+
+      (*dest)->keySize = src->keySize;
+      memcpy((*dest)->key, src->key, (*dest)->keySize);
     }
   }
 
-  if (dest->val == NULL && src->val != NULL) {
-    dest->val = malloc(src->valSize);
-    if(dest==NULL) {
-      return errMalloc;
-    }
-
-    dest->valSize = src->valSize;
-    memcpy(dest->val, src->val, dest->valSize);
-  }
-  if (dest->key == NULL && src->key != NULL) {
-    dest->key = malloc(src->keySize);
-    if(dest==NULL) {
-      return errMalloc;
-    }
-
-    dest->keySize = src->keySize;
-    memcpy(dest->key, src->key, dest->keySize);
-  }
-
-  if (dest->key != NULL && dest->keySize == src->keySize) {
-    memcpy(dest->key, src->key, dest->keySize);
-  }
-  if (dest->val != NULL && dest->valSize == src->valSize) {
-    memcpy(dest->key, src->key, dest->keySize);
-  }
+  return success;
 }
 
 int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int port) {
@@ -200,6 +203,7 @@ int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int po
   return success;
 }
 
+// TODO add mutex lock to cache access
 int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO) {
   int keySizeSize = sizeof(cO->keySize);
   int sendBuffSize = keySizeSize + cO->keySize + keySizeSize + cO->valSize;
@@ -223,7 +227,7 @@ int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO) {
   if (write(cacheClient->sockfd, sendBuff, sendBuffSize) == -1) {
     return errIO;
   }
-
+  free(sendBuff);
   return success;
 }
 
@@ -265,7 +269,7 @@ void *clientHandle(void *clientArgs) {
 
       if (readBuffSize >= tempProtocolSize+keySizeSize) {
         tempCo->keySize = tempProtocolSize;
-        tempCo->key = malloc(sizeof(char)*tempProtocolSize);
+        tempCo->key = malloc(tempProtocolSize);
         if (tempCo->key == NULL) {
           close(socket);
           pthread_exit(NULL);
@@ -280,7 +284,7 @@ void *clientHandle(void *clientArgs) {
 
       if (readBuffSize >= tempProtocolSize+keySizeSize) {
         tempCo->valSize = tempProtocolSize;
-        tempCo->val = malloc(sizeof(char)*tempProtocolSize);
+        tempCo->val = malloc(tempProtocolSize);
         if (tempCo->key == NULL) {
           close(socket);
           pthread_exit(NULL);
@@ -288,8 +292,12 @@ void *clientHandle(void *clientArgs) {
         memcpy(tempCo->val, readBuff+readSizePointer, tempProtocolSize);
 
         copiedCo = NULL;
-        cpyCacheObject(copiedCo, tempCo);
-        cacheClientPushObject(argss->cache, copiedCo);
+        if (cpyCacheObject(&copiedCo, tempCo) != 0) {
+          close(socket);
+          pthread_exit(NULL);
+        }
+
+        genericPushToCache(argss->cache, copiedCo);
       }
     }
   }
