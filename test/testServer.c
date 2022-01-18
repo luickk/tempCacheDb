@@ -17,6 +17,11 @@ int strKeyCmp(void *key1, void *key2, int size) {
   return 1;
 }
 
+void freeCoFn(cacheObject *cO) {
+  // for this example we only need to free the cacheObject struct because the key/val are string literals and cannot be freed
+  free(cO);
+}
+
 void printCache(tempCache *cache) {
   for (int i = 0; i < cache->nCacheSize; i++) {
     printf("row %d - k: %s v: %s \n", i, (char*)cache->keyValStore[i]->key, (char*)cache->keyValStore[i]->val);
@@ -26,7 +31,7 @@ void printCache(tempCache *cache) {
 int main() {
   tempCache *cache1;
 
-  int err = initTempCache(cache1, "cache1", strKeyCmp);
+  int err = initTempCache(cache1, "cache1", strKeyCmp, freeCoFn);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;

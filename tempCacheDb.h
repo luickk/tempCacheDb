@@ -14,7 +14,7 @@
 
 #define NET_KEY_VAL_SIZE_LIMIT 255
 
-#define MAX_CACHE_SIZE 1000000
+#define MAX_CACHE_SIZE 100
 
 typedef struct {
   void *key;
@@ -27,6 +27,7 @@ typedef struct {
 } cacheObject;
 
 typedef int (*keyCompare)(void*, void*, int);
+typedef void (*freeCacheObject)(cacheObject *cO);
 
 typedef struct {
   int tmpSocket;
@@ -35,6 +36,7 @@ typedef struct {
 
   char *name;
   keyCompare keyCmp;
+  freeCacheObject freeCoFn;
   pthread_mutex_t cacheMutex;
   cacheObject **keyValStore;
 
@@ -44,7 +46,8 @@ typedef struct {
 } tempCache;
 
 typedef struct {
-  int sockfd, connfd;
+  int sockfd;
+  pthread_mutex_t cacheClientMutex;
   struct sockaddr_in servaddr, cli;
 } tempCacheClient;
 
@@ -59,12 +62,14 @@ enum errCodes {
   errIO,
   errMalloc,
   errCacheSize,
+  errFree,
   errInit
 };
 
-int initTempCache(tempCache *cache, char *cacheName, keyCompare keyCmp) {
+int initTempCache(tempCache *cache, char *cacheName, keyCompare keyCmp, freeCacheObject freeCoFn) {
   cache->name = cacheName;
   cache->keyCmp = keyCmp;
+  cache->freeCoFn = freeCoFn;
 
   cache->nCacheSize = 0;
   cache = malloc(sizeof(tempCache));
@@ -81,13 +86,13 @@ int initTempCache(tempCache *cache, char *cacheName, keyCompare keyCmp) {
 
 int freeTempCache(tempCache *cache, char *cacheName) {
   for (int i = 0; i < cache->nCacheSize; i++) {
-    // free(cache->keyValStore[i]->key);
-    // free(cache->keyValStore[i]->val);
-    free(cache->keyValStore[i]);
+    cache->freeCoFn(cache->keyValStore[i]);
   }
 
   free(cache);
-  pthread_mutex_destroy(&cache->cacheMutex);
+  if(pthread_mutex_destroy(&cache->cacheMutex) != 0) {
+    return errFree;
+  }
 
   return success;
 }
@@ -107,40 +112,32 @@ int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject **resu
   return 0;
 }
 
-// TODO fix nCacheSize overflow
-// TODO fix freeing issue
 // cashObject must be properly allocated!
 int genericPushToCache(tempCache *cache, cacheObject *cO) {
   cacheObject *tempCoRef;
 
-
   if (genericGetByKey(cache, cO->key, cO->keySize, &tempCoRef)) {
     pthread_mutex_lock(&cache->cacheMutex);
-    // free(tempCoRef->key);
-    // free(tempCoRef->val);
-    // free(tempCoRef);
+    // cache->freeCoFn(tempCoRef);
     tempCoRef = cO;
     pthread_mutex_unlock(&cache->cacheMutex);
   } else {
-    if (cache->nCacheSize >= MAX_CACHE_SIZE) {
-      free(cache->keyValStore[0]->key);
-      free(cache->keyValStore[0]->val);
-      free(cache->keyValStore[0]);
-    }
     pthread_mutex_lock(&cache->cacheMutex);
-    if (cache->nCacheSize == 0) {
-      cache->keyValStore = malloc(sizeof(cacheObject*));
-      if (cache->keyValStore == NULL) {
-        return errMalloc;
+    if (cache->nCacheSize <= MAX_CACHE_SIZE) {
+      if (cache->nCacheSize == 0) {
+        cache->keyValStore = malloc(sizeof(cacheObject*));
+        if (cache->keyValStore == NULL) {
+          return errMalloc;
+        }
+      } else {
+        cache->keyValStore = realloc(cache->keyValStore, sizeof(cacheObject*)*(cache->nCacheSize+1));
+        if (cache->keyValStore == NULL) {
+          return errMalloc;
+        }
       }
-    } else {
-      cache->keyValStore = realloc(cache->keyValStore, sizeof(cacheObject*)*(cache->nCacheSize+1));
-      if (cache->keyValStore == NULL) {
-        return errMalloc;
-      }
+      cache->keyValStore[cache->nCacheSize] = cO;
+      cache->nCacheSize++;
     }
-    cache->keyValStore[cache->nCacheSize] = cO;
-    cache->nCacheSize++;
     pthread_mutex_unlock(&cache->cacheMutex);
   }
   return success;
@@ -183,7 +180,29 @@ int cpyCacheObject(cacheObject **dest, cacheObject *src) {
   return success;
 }
 
+int initCacheClient(tempCacheClient **cacheClient) {
+  *cacheClient = malloc(sizeof(tempCacheClient));
+  if (*cacheClient == NULL) {
+    return errMalloc;
+  }
+  if (pthread_mutex_init(&(*cacheClient)->cacheClientMutex, NULL) != 0) {
+    return errInit;
+  }
+  return success;
+}
+
+int freeCacheClient(tempCacheClient *cacheClient) {
+  if(pthread_mutex_destroy(&cacheClient->cacheClientMutex) != 0) {
+    return errFree;
+  }
+  close(cacheClient->sockfd);
+  free(cacheClient);
+  return success;
+}
+
+
 int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int port) {
+  pthread_mutex_lock(&cacheClient->cacheClientMutex);
   cacheClient->sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (cacheClient->sockfd == -1) {
     return errNet;
@@ -199,11 +218,11 @@ int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int po
   if (connect(cacheClient->sockfd, (struct sockaddr*)&cacheClient->servaddr, sizeof(cacheClient->servaddr)) != 0) {
     return errNet;
   }
+  pthread_mutex_unlock(&cacheClient->cacheClientMutex);
 
   return success;
 }
 
-// TODO add mutex lock to cache access
 int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO) {
   int keySizeSize = sizeof(cO->keySize);
   int sendBuffSize = keySizeSize + cO->keySize + keySizeSize + cO->valSize;
@@ -224,9 +243,11 @@ int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO) {
   memcpy(sendBuff+sendBuffSize, cO->val, cO->valSize);
   sendBuffSize += cO->valSize;
 
+  pthread_mutex_lock(&cacheClient->cacheClientMutex);
   if (write(cacheClient->sockfd, sendBuff, sendBuffSize) == -1) {
     return errIO;
   }
+  pthread_mutex_unlock(&cacheClient->cacheClientMutex);
   free(sendBuff);
   return success;
 }
@@ -296,7 +317,6 @@ void *clientHandle(void *clientArgs) {
           close(socket);
           pthread_exit(NULL);
         }
-
         genericPushToCache(argss->cache, copiedCo);
       }
     }
