@@ -66,8 +66,7 @@ enum errCodes {
   errInit
 };
 
-int initTempCache(tempCache *cache, char *cacheName, keyCompare keyCmp, freeCacheObject freeCoFn) {
-  cache->name = cacheName;
+int initTempCache(tempCache *cache, keyCompare keyCmp, freeCacheObject freeCoFn) {
   cache->keyCmp = keyCmp;
   cache->freeCoFn = freeCoFn;
 
@@ -84,7 +83,7 @@ int initTempCache(tempCache *cache, char *cacheName, keyCompare keyCmp, freeCach
   return success;
 }
 
-int freeTempCache(tempCache *cache, char *cacheName) {
+int freeTempCache(tempCache *cache) {
   for (int i = 0; i < cache->nCacheSize; i++) {
     cache->freeCoFn(cache->keyValStore[i]);
   }
@@ -97,29 +96,32 @@ int freeTempCache(tempCache *cache, char *cacheName) {
   return success;
 }
 
-int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject **resultingCo) {
+// returns 1 if cO key has been found in the cache and 0 if not
+int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject ***resultingCo) {
   pthread_mutex_lock(&cache->cacheMutex);
   for (int i = 0; i < cache->nCacheSize; i++) {
     if (cache->keyValStore[i]->keySize == keySize) {
       if(cache->keyCmp(cache->keyValStore[i]->key, key, keySize)) {
-        *resultingCo = cache->keyValStore[i];
+        *resultingCo = &cache->keyValStore[i];
         return 1;
       }
     }
   }
   pthread_mutex_unlock(&cache->cacheMutex);
-  resultingCo = NULL;
+  *resultingCo = NULL;
   return 0;
 }
 
 // cashObject must be properly allocated!
 int genericPushToCache(tempCache *cache, cacheObject *cO) {
-  cacheObject *tempCoRef;
+  cacheObject **tempCoRef;
 
   if (genericGetByKey(cache, cO->key, cO->keySize, &tempCoRef)) {
     pthread_mutex_lock(&cache->cacheMutex);
-    // cache->freeCoFn(tempCoRef);
-    tempCoRef = cO;
+
+    cache->freeCoFn(*tempCoRef);
+    *tempCoRef = cO;
+    
     pthread_mutex_unlock(&cache->cacheMutex);
   } else {
     pthread_mutex_lock(&cache->cacheMutex);

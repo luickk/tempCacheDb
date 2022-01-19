@@ -31,7 +31,7 @@ void printCache(tempCache *cache) {
 int main() {
   tempCache *cache1;
 
-  int err = initTempCache(cache1, "cache1", strKeyCmp, freeCoFn);
+  int err = initTempCache(cache1, strKeyCmp, freeCoFn);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
@@ -82,7 +82,7 @@ int main() {
   }
 
   printCache(cache1);
-
+  printf("%p %p %p %p \n", insert, insert2, insert3, insert4);
   err = listenDbServer(cache1, 8080);
   if (err != 0) {
     printf("err code %d \n", err);

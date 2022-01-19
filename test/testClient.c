@@ -31,7 +31,7 @@ void printCache(tempCache *cache) {
 int main() {
   tempCache *cache1;
 
-  int err = initTempCache(cache1, "cache1", strKeyCmp, freeCoFn);
+  int err = initTempCache(cache1, strKeyCmp, freeCoFn);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
