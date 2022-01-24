@@ -30,7 +30,6 @@ typedef int (*keyCompare)(void*, void*, int);
 typedef void (*freeCacheObject)(cacheObject *cO);
 
 typedef struct {
-  int tmpSocket;
   int serverSocket;
   uint nCacheSize;
 
@@ -40,9 +39,7 @@ typedef struct {
   pthread_mutex_t cacheMutex;
   cacheObject **keyValStore;
 
-  socklen_t addrSize;
   pthread_t pthread;
-  struct sockaddr_in tempClient;
 } tempCache;
 
 typedef struct {
@@ -66,17 +63,17 @@ enum errCodes {
   errInit
 };
 
-int initTempCache(tempCache *cache, keyCompare keyCmp, freeCacheObject freeCoFn) {
-  cache->keyCmp = keyCmp;
-  cache->freeCoFn = freeCoFn;
-
-  cache->nCacheSize = 0;
-  cache = malloc(sizeof(tempCache));
+int initTempCache(tempCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn) {
+  *cache = malloc(sizeof(tempCache));
   if (cache == NULL) {
     return errMalloc;
   }
 
-  if (pthread_mutex_init(&cache->cacheMutex, NULL) != 0) {
+  (*cache)->keyCmp = keyCmp;
+  (*cache)->freeCoFn = freeCoFn;
+  (*cache)->nCacheSize = 0;
+
+  if (pthread_mutex_init(&(*cache)->cacheMutex, NULL) != 0) {
     return errInit;
   }
 
@@ -112,17 +109,25 @@ int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject ***res
   return 0;
 }
 
-// cashObject must be properly allocated!
+// CashObject must be properly allocated!
+// Don't reuse pushed cache Object. The memory is now manged by the cache
+// and could be freed or moved at any point in time
 int genericPushToCache(tempCache *cache, cacheObject *cO) {
   cacheObject **tempCoRef;
-
+  printf("%s %s \n", (char*)cO->key, (char*)cO->val);
+  printf("%d \n", cache->nCacheSize);
   if (genericGetByKey(cache, cO->key, cO->keySize, &tempCoRef)) {
+    printf("sadasd \n");
     pthread_mutex_lock(&cache->cacheMutex);
 
+      printf("sadasd1 \n");
     cache->freeCoFn(*tempCoRef);
+      printf("sadasd3 \n");
     *tempCoRef = cO;
-    
+
+      printf("sadasd4 \n");
     pthread_mutex_unlock(&cache->cacheMutex);
+      printf("sadasd5 \n");
   } else {
     pthread_mutex_lock(&cache->cacheMutex);
     if (cache->nCacheSize <= MAX_CACHE_SIZE) {
@@ -254,6 +259,22 @@ int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO) {
   return success;
 }
 
+
+void *cacheSurveillance(void *cacheP) {
+  tempCache *cache = (tempCache*)cacheP;
+  while (1) {
+    pthread_mutex_lock(&cache->cacheMutex);
+    printf("----------------- cacheSurveillance ----------------- \n");
+    printf("Rows: %d \n", cache->nCacheSize);
+    for (int i = 0; i < cache->nCacheSize; i++) {
+      printf("row %d - k: %s v: %s / \n", i, (char*)cache->keyValStore[i]->key, (char*)cache->keyValStore[i]->val);
+    }
+    printf("-----------------                    ----------------- \n");
+    pthread_mutex_unlock(&cache->cacheMutex);
+    sleep(1);
+  }
+}
+
 void *clientHandle(void *clientArgs) {
   struct pthreadClientHandleArgs *argss = (struct pthreadClientHandleArgs*)clientArgs;
   int socket = argss->socket;
@@ -319,6 +340,7 @@ void *clientHandle(void *clientArgs) {
           close(socket);
           pthread_exit(NULL);
         }
+
         genericPushToCache(argss->cache, copiedCo);
       }
     }
@@ -326,35 +348,46 @@ void *clientHandle(void *clientArgs) {
 }
 
 int listenDbServer(tempCache *cache, int port) {
-  memset(&cache->tempClient, 0, sizeof cache->tempClient);
-  cache->tempClient.sin_family = AF_INET;
-  cache->tempClient.sin_port = htons(port);
-  cache->tempClient.sin_addr.s_addr = INADDR_ANY;
+  int tmpSocket;
+  socklen_t addrSize;
+  struct sockaddr_in tempClient;
 
-  if ((cache->serverSocket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+  cache->serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+  if (cache->serverSocket == -1) {
     return errNet;
   }
-  if (bind(cache->serverSocket, (struct sockaddr *)&cache->tempClient, sizeof(cache->tempClient)) == -1) {
+
+  memset(&tempClient, 0, sizeof(tempClient));
+  tempClient.sin_family = AF_INET;
+  tempClient.sin_port = htons(port);
+  tempClient.sin_addr.s_addr = INADDR_ANY;
+
+  if (bind(cache->serverSocket, (struct sockaddr *)&tempClient, sizeof(tempClient)) < 0) {
     return errNet;
   }
   if (listen(cache->serverSocket, 1) != 0) {
     return errNet;
   }
+  pthread_t survPthread;
+  if(pthread_create(&survPthread, NULL, cacheSurveillance, (void*)cache) != 0 ) {
+    return errIO;
+  }
+
   // for (int n = 0; n <= 5; n++) {
   while (1) {
-    cache->addrSize = sizeof(cache->tempClient);
+    addrSize = sizeof(tempClient);
 
-    cache->tmpSocket = accept(cache->serverSocket, (struct sockaddr *) &cache->tempClient, &cache->addrSize);
-    if (cache->tmpSocket == -1) {
+    tmpSocket = accept(cache->serverSocket, (struct sockaddr *)&tempClient, &addrSize);
+    if (tmpSocket == -1) {
       return errNet;
     }
 
     struct pthreadClientHandleArgs *clientArgs = malloc(sizeof clientArgs);
     if (clientArgs == NULL) {
-      close(cache->tmpSocket);
+      close(tmpSocket);
       return errMalloc;
     }
-    clientArgs->socket = cache->tmpSocket;
+    clientArgs->socket = tmpSocket;
     clientArgs->cache = cache;
 
     if(pthread_create(&cache->pthread, NULL, clientHandle, (void*)clientArgs) != 0 ) {

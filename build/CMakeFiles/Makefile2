@@ -78,6 +78,7 @@ clean: test/clean
 # Directory level rules for directory test
 
 # Recursive "all" directory target.
+test/all: test/CMakeFiles/tempCacheDbLocalTest.dir/all
 test/all: test/CMakeFiles/tempCacheDbServerTest.dir/all
 test/all: test/CMakeFiles/tempCacheDbClientTest.dir/all
 .PHONY : test/all
@@ -87,9 +88,36 @@ test/preinstall:
 .PHONY : test/preinstall
 
 # Recursive "clean" directory target.
+test/clean: test/CMakeFiles/tempCacheDbLocalTest.dir/clean
 test/clean: test/CMakeFiles/tempCacheDbServerTest.dir/clean
 test/clean: test/CMakeFiles/tempCacheDbClientTest.dir/clean
 .PHONY : test/clean
+
+#=============================================================================
+# Target rules for target test/CMakeFiles/tempCacheDbLocalTest.dir
+
+# All Build rule for target.
+test/CMakeFiles/tempCacheDbLocalTest.dir/all:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbLocalTest.dir/build.make test/CMakeFiles/tempCacheDbLocalTest.dir/depend
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbLocalTest.dir/build.make test/CMakeFiles/tempCacheDbLocalTest.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=3,4 "Built target tempCacheDbLocalTest"
+.PHONY : test/CMakeFiles/tempCacheDbLocalTest.dir/all
+
+# Build rule for subdir invocation for target.
+test/CMakeFiles/tempCacheDbLocalTest.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/tempCacheDbLocalTest.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+.PHONY : test/CMakeFiles/tempCacheDbLocalTest.dir/rule
+
+# Convenience name for target.
+tempCacheDbLocalTest: test/CMakeFiles/tempCacheDbLocalTest.dir/rule
+.PHONY : tempCacheDbLocalTest
+
+# clean rule for target.
+test/CMakeFiles/tempCacheDbLocalTest.dir/clean:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbLocalTest.dir/build.make test/CMakeFiles/tempCacheDbLocalTest.dir/clean
+.PHONY : test/CMakeFiles/tempCacheDbLocalTest.dir/clean
 
 #=============================================================================
 # Target rules for target test/CMakeFiles/tempCacheDbServerTest.dir
@@ -98,7 +126,7 @@ test/clean: test/CMakeFiles/tempCacheDbClientTest.dir/clean
 test/CMakeFiles/tempCacheDbServerTest.dir/all:
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbServerTest.dir/build.make test/CMakeFiles/tempCacheDbServerTest.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbServerTest.dir/build.make test/CMakeFiles/tempCacheDbServerTest.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=3,4 "Built target tempCacheDbServerTest"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=5,6 "Built target tempCacheDbServerTest"
 .PHONY : test/CMakeFiles/tempCacheDbServerTest.dir/all
 
 # Build rule for subdir invocation for target.

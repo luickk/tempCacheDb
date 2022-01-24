@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named tempCacheDbLocalTest
+
+# Build rule for target.
+tempCacheDbLocalTest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tempCacheDbLocalTest
+.PHONY : tempCacheDbLocalTest
+
+# fast build rule for target.
+tempCacheDbLocalTest/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbLocalTest.dir/build.make test/CMakeFiles/tempCacheDbLocalTest.dir/build
+.PHONY : tempCacheDbLocalTest/fast
+
+#=============================================================================
 # Target rules for targets named tempCacheDbServerTest
 
 # Build rule for target.
@@ -151,6 +164,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... tempCacheDbClientTest"
+	@echo "... tempCacheDbLocalTest"
 	@echo "... tempCacheDbServerTest"
 .PHONY : help
 

@@ -30,59 +30,12 @@ void printCache(tempCache *cache) {
 
 int main() {
   tempCache *cache1;
-
-  int err = initTempCache(cache1, strKeyCmp, freeCoFn);
+  int err = initTempCache(&cache1, strKeyCmp, freeCoFn);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
   }
 
-  cacheObject *insert = malloc(sizeof(cacheObject));
-  insert->key = "test";
-  insert->keySize = 4;
-  insert->val = "testVal";
-  insert->valSize = 6;
-  err = genericPushToCache(cache1, insert);
-  if (err != 0) {
-    printf("err code %d \n", err);
-    return 1;
-  }
-
-  cacheObject *insert2 = malloc(sizeof(cacheObject));
-  insert2->key = "peter2";
-  insert2->keySize = 6;
-  insert2->val = "testVal2";
-  insert2->valSize = 8;
-  err = genericPushToCache(cache1, insert2);
-  if (err != 0) {
-    printf("err code %d \n", err);
-    return 1;
-  }
-
-  cacheObject *insert3 = malloc(sizeof(cacheObject));
-  insert3->key = "peterr";
-  insert3->keySize = 6;
-  insert3->val = "testVal3";
-  insert3->valSize = 8;
-  err = genericPushToCache(cache1, insert3);
-  if (err != 0) {
-    printf("err code %d \n", err);
-    return 1;
-  }
-
-  cacheObject *insert4 = malloc(sizeof(cacheObject));
-  insert4->key = "peterr";
-  insert4->keySize = 6;
-  insert4->val = "rrrr";
-  insert4->valSize = 4;
-  err = genericPushToCache(cache1, insert4);
-  if (err != 0) {
-    printf("err code %d \n", err);
-    return 1;
-  }
-
-  printCache(cache1);
-  printf("%p %p %p %p \n", insert, insert2, insert3, insert4);
   err = listenDbServer(cache1, 8080);
   if (err != 0) {
     printf("err code %d \n", err);

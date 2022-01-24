@@ -1,5 +1,5 @@
-test/CMakeFiles/tempCacheDbClientTest.dir/testClient.c.o: \
-  /Users/luickklippel/Documents/Projekte/tempCacheDb/test/testClient.c \
+test/CMakeFiles/tempCacheDbLocalTest.dir/localTest.c.o: \
+  /Users/luickklippel/Documents/Projekte/tempCacheDb/test/localTest.c \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/_stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/cdefs.h \
