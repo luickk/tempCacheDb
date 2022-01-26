@@ -51,10 +51,11 @@ int main() {
   printf("connected successfully \n");
 
   char *r = malloc(sizeof(int));
-  // insert2->keySize = sizeof(char);
-  // insert2->key = r;
+  insert2->keySize = sizeof(int)+7;
+  insert2->key = r;
+  int i = 0;
   while (1) {
-    sprintf(r, "%d", rand() % 100);
+    sprintf(r, "peter%d", i++);
     printf("%s \n", (char*)insert2->key);
     err = cacheClientPushObject(cacheClient, insert2);
     if (err != 0) {
@@ -63,10 +64,6 @@ int main() {
     }
     usleep(100);
   }
-
-
-  printf("pushed cO \n");
-
 
   return 0;
 }
