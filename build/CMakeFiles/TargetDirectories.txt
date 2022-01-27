@@ -1,7 +1,9 @@
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles/rebuild_cache.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles/edit_cache.dir
+/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/testPullClient.dir
+/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/localTest.dir
+/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/testServer.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/rebuild_cache.dir
+/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/testServerAndLocal.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/edit_cache.dir
-/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/tempCacheDbLocalTest.dir
-/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/tempCacheDbServerTest.dir
-/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/tempCacheDbClientTest.dir
+/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/testPushClient.dir

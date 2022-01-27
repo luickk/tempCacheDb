@@ -117,43 +117,69 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named tempCacheDbLocalTest
+# Target rules for targets named testPullClient
 
 # Build rule for target.
-tempCacheDbLocalTest: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tempCacheDbLocalTest
-.PHONY : tempCacheDbLocalTest
+testPullClient: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testPullClient
+.PHONY : testPullClient
 
 # fast build rule for target.
-tempCacheDbLocalTest/fast:
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbLocalTest.dir/build.make test/CMakeFiles/tempCacheDbLocalTest.dir/build
-.PHONY : tempCacheDbLocalTest/fast
+testPullClient/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/build
+.PHONY : testPullClient/fast
 
 #=============================================================================
-# Target rules for targets named tempCacheDbServerTest
+# Target rules for targets named localTest
 
 # Build rule for target.
-tempCacheDbServerTest: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tempCacheDbServerTest
-.PHONY : tempCacheDbServerTest
+localTest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 localTest
+.PHONY : localTest
 
 # fast build rule for target.
-tempCacheDbServerTest/fast:
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbServerTest.dir/build.make test/CMakeFiles/tempCacheDbServerTest.dir/build
-.PHONY : tempCacheDbServerTest/fast
+localTest/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/build
+.PHONY : localTest/fast
 
 #=============================================================================
-# Target rules for targets named tempCacheDbClientTest
+# Target rules for targets named testServer
 
 # Build rule for target.
-tempCacheDbClientTest: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tempCacheDbClientTest
-.PHONY : tempCacheDbClientTest
+testServer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testServer
+.PHONY : testServer
 
 # fast build rule for target.
-tempCacheDbClientTest/fast:
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/tempCacheDbClientTest.dir/build.make test/CMakeFiles/tempCacheDbClientTest.dir/build
-.PHONY : tempCacheDbClientTest/fast
+testServer/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/build
+.PHONY : testServer/fast
+
+#=============================================================================
+# Target rules for targets named testServerAndLocal
+
+# Build rule for target.
+testServerAndLocal: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testServerAndLocal
+.PHONY : testServerAndLocal
+
+# fast build rule for target.
+testServerAndLocal/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/build
+.PHONY : testServerAndLocal/fast
+
+#=============================================================================
+# Target rules for targets named testPushClient
+
+# Build rule for target.
+testPushClient: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testPushClient
+.PHONY : testPushClient
+
+# fast build rule for target.
+testPushClient/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/build
+.PHONY : testPushClient/fast
 
 # Help Target
 help:
@@ -163,9 +189,11 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... tempCacheDbClientTest"
-	@echo "... tempCacheDbLocalTest"
-	@echo "... tempCacheDbServerTest"
+	@echo "... localTest"
+	@echo "... testPullClient"
+	@echo "... testPushClient"
+	@echo "... testServer"
+	@echo "... testServerAndLocal"
 .PHONY : help
 
 

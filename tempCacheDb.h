@@ -94,24 +94,34 @@ int freeTempCache(tempCache *cache) {
 }
 
 // returns 1 if cO key has been found in the cache and 0 if not
-int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject **resultingCo) {
+// writes to Co val and valSize (mallocs if necessary)
+int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject *resultingCo) {
   pthread_mutex_lock(&cache->cacheMutex);
   for (int i = 0; i < cache->nCacheSize; i++) {
     if (cache->keyValStore[i]->keySize == keySize) {
       if(cache->keyCmp(cache->keyValStore[i]->key, key, keySize)) {
-        *resultingCo = cache->keyValStore[i];
+        printf("match %s %d \n", (char*) key, keySize);
+        // cannot overwrite possibly allocated memory to prevent potential memory leak
+        assert(resultingCo->val == NULL);
+
+        resultingCo->valSize = cache->keyValStore[i]->valSize;
+        resultingCo->val = malloc(resultingCo->valSize);
+        memcpy(resultingCo->val, cache->keyValStore[i]->val, resultingCo->valSize);
+
         pthread_mutex_unlock(&cache->cacheMutex);
         return 1;
       }
     }
   }
-  *resultingCo = NULL;
   pthread_mutex_unlock(&cache->cacheMutex);
   return 0;
 }
 
 // returns 1 if cO key has been found in the cache and 0 if not
-int genericGetByKeyFromCacheArr(tempCache *cache, void *key, int keySize, cacheObject ***resultingCo) {
+// writes pointer to resultingCo param from the cache's Co array
+// don't forget to use the caches mutex on the returned array pointer
+// be carefull not to pass a allocated Co to resultingCo as it will not be freed
+int genericGetCoRefByKey(tempCache *cache, void *key, int keySize, cacheObject ***resultingCo) {
   pthread_mutex_lock(&cache->cacheMutex);
   for (int i = 0; i < cache->nCacheSize; i++) {
     if (cache->keyValStore[i]->keySize == keySize) {
@@ -132,7 +142,7 @@ int genericGetByKeyFromCacheArr(tempCache *cache, void *key, int keySize, cacheO
 // and could be freed or moved at any point in time
 int genericPushToCache(tempCache *cache, cacheObject *cO) {
   cacheObject **tempCoRef;
-  if (genericGetByKeyFromCacheArr(cache, cO->key, cO->keySize, &tempCoRef)) {
+  if (genericGetCoRefByKey(cache, cO->key, cO->keySize, &tempCoRef)) {
     pthread_mutex_lock(&cache->cacheMutex);
     cache->freeCoFn(*tempCoRef);
     *tempCoRef = cO;
@@ -313,6 +323,7 @@ int cacheClientPullByKey(tempCacheClient *cacheClient, void *key, int keySize, c
 
   memcpy(sendBuff+sendBuffSize, key, keySize);
   sendBuffSize += keySize;
+
   netByteOrderSize = htons(0);
   memcpy(sendBuff+sendBuffSize, &netByteOrderSize, keySizeSize);
   sendBuffSize += keySizeSize;
@@ -398,7 +409,7 @@ void *clientHandle(void *clientArgs) {
       tempProtocolSize = ntohs(tempProtocolSize);
 
       // is a push operation, checking if enough memory is in the buffer
-      if (readBuffSize >= tempProtocolSize+keySizeSize) {
+      if (readBuffSize >= tempProtocolSize+keySizeSize && tempProtocolSize != 0) {
         tempCo->valSize = tempProtocolSize;
         tempCo->val = malloc(tempProtocolSize);
         if (tempCo->key == NULL) {
@@ -415,10 +426,17 @@ void *clientHandle(void *clientArgs) {
 
         genericPushToCache(argss->cache, copiedCo);
 
+        free(tempCo->val);
+        tempCo->val = NULL;
       // is a pull operation
-      } else if (tempProtocolSize == 0) {
-        genericGetByKey(argss->cache, tempCo->key, tempCo->keySize, &tempCo);
-        cacheReplyToPull(socket, tempCo);
+      } else {
+        genericGetByKey(argss->cache, tempCo->key, tempCo->keySize, tempCo);
+
+        printf("k: %s v: %s \n", (char*)tempCo->key, (char*)tempCo->val);
+        free(tempCo->val);
+        tempCo->val = NULL;
+
+        // cacheReplyToPull(socket, tempCo);
       }
     }
   }
