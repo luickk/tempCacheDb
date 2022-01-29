@@ -9,7 +9,7 @@ int strKeyCmp(void *key1, void *key2, int size) {
 
   char *ckey1 = (char*)key1;
   char *ckey2 = (char*)key2;
-  for (int i = 0; i <= size; i++) {
+  for (int i = 0; i < size; i++) {
     if (ckey1[i]!=ckey2[i]) {
       return 0;
     }
@@ -40,7 +40,7 @@ int main() {
   insert->key = "test";
   insert->keySize = 4;
   insert->val = "testVal";
-  insert->valSize = 6;
+  insert->valSize = 7;
   err = genericPushToCache(cache1, insert);
   if (err != 0) {
     printf("err code %d \n", err);

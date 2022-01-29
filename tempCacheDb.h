@@ -44,6 +44,7 @@ typedef struct {
 
 typedef struct {
   int sockfd;
+  char *tempReadBuffer;
   pthread_mutex_t cacheClientMutex;
   struct sockaddr_in servaddr, cli;
 } tempCacheClient;
@@ -95,15 +96,12 @@ int freeTempCache(tempCache *cache) {
 
 // returns 1 if cO key has been found in the cache and 0 if not
 // writes to Co val and valSize (mallocs if necessary)
+// !resultingCo must not contain pointer to possibly allocated memory to prevent potential memory leak!
 int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject *resultingCo) {
   pthread_mutex_lock(&cache->cacheMutex);
   for (int i = 0; i < cache->nCacheSize; i++) {
     if (cache->keyValStore[i]->keySize == keySize) {
       if(cache->keyCmp(cache->keyValStore[i]->key, key, keySize)) {
-        printf("match %s %d \n", (char*) key, keySize);
-        // cannot overwrite possibly allocated memory to prevent potential memory leak
-        assert(resultingCo->val == NULL);
-
         resultingCo->valSize = cache->keyValStore[i]->valSize;
         resultingCo->val = malloc(resultingCo->valSize);
         memcpy(resultingCo->val, cache->keyValStore[i]->val, resultingCo->valSize);
@@ -215,6 +213,8 @@ int initCacheClient(tempCacheClient **cacheClient) {
   if (pthread_mutex_init(&(*cacheClient)->cacheClientMutex, NULL) != 0) {
     return errInit;
   }
+  (*cacheClient)->tempReadBuffer = malloc(sizeof(char)*SERVER_BUFF_SIZE);
+
   return success;
 }
 
@@ -223,6 +223,7 @@ int freeCacheClient(tempCacheClient *cacheClient) {
     return errFree;
   }
   close(cacheClient->sockfd);
+  free(cacheClient->tempReadBuffer);
   free(cacheClient);
   return success;
 }
@@ -332,6 +333,11 @@ int cacheClientPullByKey(tempCacheClient *cacheClient, void *key, int keySize, c
   if (write(cacheClient->sockfd, sendBuff, sendBuffSize) == -1) {
     return errIO;
   }
+
+  read(cacheClient->sockfd, cacheClient->tempReadBuffer, SERVER_BUFF_SIZE);
+
+  
+
   pthread_mutex_unlock(&cacheClient->cacheClientMutex);
   free(sendBuff);
   return success;
@@ -431,12 +437,13 @@ void *clientHandle(void *clientArgs) {
       // is a pull operation
       } else {
         genericGetByKey(argss->cache, tempCo->key, tempCo->keySize, tempCo);
-
         printf("k: %s v: %s \n", (char*)tempCo->key, (char*)tempCo->val);
+
+        cacheReplyToPull(socket, tempCo);
+
         free(tempCo->val);
         tempCo->val = NULL;
 
-        // cacheReplyToPull(socket, tempCo);
       }
     }
   }
