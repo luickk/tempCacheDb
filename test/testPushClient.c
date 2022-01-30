@@ -24,8 +24,8 @@ void freeCoFn(cacheObject *cO) {
 }
 
 void printCache(tempCache *cache) {
-  for (int i = 0; i < cache->nCacheSize; i++) {
-    printf("p: %p row %d - k: %s v: %s \n", cache->keyValStore[i], i, (char*)cache->keyValStore[i]->key, (char*)cache->keyValStore[i]->val);
+  for (int i = 0; i < cache->localCache->nCacheSize; i++) {
+    printf("p: %p row %d - k: %s v: %s \n", cache->localCache->keyValStore[i], i, (char*)cache->localCache->keyValStore[i]->key, (char*)cache->localCache->keyValStore[i]->val);
   }
 }
 

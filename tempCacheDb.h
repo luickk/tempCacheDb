@@ -30,16 +30,18 @@ typedef int (*keyCompare)(void*, void*, int);
 typedef void (*freeCacheObject)(cacheObject *cO);
 
 typedef struct {
-  int serverSocket;
   uint nCacheSize;
-
-  char *name;
   keyCompare keyCmp;
   freeCacheObject freeCoFn;
   pthread_mutex_t cacheMutex;
   cacheObject **keyValStore;
+} simpleCache;
 
+typedef struct {
+  int serverSocket;
   pthread_t pthread;
+
+  simpleCache *localCache;
 } tempCache;
 
 typedef struct {
@@ -47,6 +49,8 @@ typedef struct {
   char *tempReadBuffer;
   pthread_mutex_t cacheClientMutex;
   struct sockaddr_in servaddr, cli;
+
+  cacheObject **tempKeyValStore;
 } tempCacheClient;
 
 struct pthreadClientHandleArgs {
@@ -65,16 +69,18 @@ enum errCodes {
 };
 
 int initTempCache(tempCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn) {
+  simpleCache *localCache = malloc(sizeof(simpleCache));
   *cache = malloc(sizeof(tempCache));
   if (cache == NULL) {
     return errMalloc;
   }
 
-  (*cache)->keyCmp = keyCmp;
-  (*cache)->freeCoFn = freeCoFn;
-  (*cache)->nCacheSize = 0;
+  (*cache)->localCache = localCache;
+  (*cache)->localCache->keyCmp = keyCmp;
+  (*cache)->localCache->freeCoFn = freeCoFn;
+  (*cache)->localCache->nCacheSize = 0;
 
-  if (pthread_mutex_init(&(*cache)->cacheMutex, NULL) != 0) {
+  if (pthread_mutex_init(&(*cache)->localCache->cacheMutex, NULL) != 0) {
     return errInit;
   }
 
@@ -82,12 +88,12 @@ int initTempCache(tempCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn
 }
 
 int freeTempCache(tempCache *cache) {
-  for (int i = 0; i < cache->nCacheSize; i++) {
-    cache->freeCoFn(cache->keyValStore[i]);
+  for (int i = 0; i < cache->localCache->nCacheSize; i++) {
+    cache->localCache->freeCoFn(cache->localCache->keyValStore[i]);
   }
 
   free(cache);
-  if(pthread_mutex_destroy(&cache->cacheMutex) != 0) {
+  if(pthread_mutex_destroy(&cache->localCache->cacheMutex) != 0) {
     return errFree;
   }
 
@@ -97,21 +103,21 @@ int freeTempCache(tempCache *cache) {
 // returns 1 if cO key has been found in the cache and 0 if not
 // writes to Co val and valSize (mallocs if necessary)
 // !resultingCo must not contain pointer to possibly allocated memory to prevent potential memory leak!
-int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject *resultingCo) {
-  pthread_mutex_lock(&cache->cacheMutex);
-  for (int i = 0; i < cache->nCacheSize; i++) {
-    if (cache->keyValStore[i]->keySize == keySize) {
-      if(cache->keyCmp(cache->keyValStore[i]->key, key, keySize)) {
-        resultingCo->valSize = cache->keyValStore[i]->valSize;
+int genericGetByKey(simpleCache *localCache, void *key, int keySize, cacheObject *resultingCo) {
+  pthread_mutex_lock(&localCache->cacheMutex);
+  for (int i = 0; i < localCache->nCacheSize; i++) {
+    if (localCache->keyValStore[i]->keySize == keySize) {
+      if(localCache->keyCmp(localCache->keyValStore[i]->key, key, keySize)) {
+        resultingCo->valSize = localCache->keyValStore[i]->valSize;
         resultingCo->val = malloc(resultingCo->valSize);
-        memcpy(resultingCo->val, cache->keyValStore[i]->val, resultingCo->valSize);
+        memcpy(resultingCo->val, localCache->keyValStore[i]->val, resultingCo->valSize);
 
-        pthread_mutex_unlock(&cache->cacheMutex);
+        pthread_mutex_unlock(&localCache->cacheMutex);
         return 1;
       }
     }
   }
-  pthread_mutex_unlock(&cache->cacheMutex);
+  pthread_mutex_unlock(&localCache->cacheMutex);
   return 0;
 }
 
@@ -119,51 +125,51 @@ int genericGetByKey(tempCache *cache, void *key, int keySize, cacheObject *resul
 // writes pointer to resultingCo param from the cache's Co array
 // don't forget to use the caches mutex on the returned array pointer
 // be carefull not to pass a allocated Co to resultingCo as it will not be freed
-int genericGetCoRefByKey(tempCache *cache, void *key, int keySize, cacheObject ***resultingCo) {
-  pthread_mutex_lock(&cache->cacheMutex);
-  for (int i = 0; i < cache->nCacheSize; i++) {
-    if (cache->keyValStore[i]->keySize == keySize) {
-      if(cache->keyCmp(cache->keyValStore[i]->key, key, keySize)) {
-        *resultingCo = &cache->keyValStore[i];
-        pthread_mutex_unlock(&cache->cacheMutex);
+int genericGetCoRefByKey(simpleCache *localCache, void *key, int keySize, cacheObject ***resultingCo) {
+  pthread_mutex_lock(&localCache->cacheMutex);
+  for (int i = 0; i < localCache->nCacheSize; i++) {
+    if (localCache->keyValStore[i]->keySize == keySize) {
+      if(localCache->keyCmp(localCache->keyValStore[i]->key, key, keySize)) {
+        *resultingCo = &localCache->keyValStore[i];
+        pthread_mutex_unlock(&localCache->cacheMutex);
         return 1;
       }
     }
   }
   *resultingCo = NULL;
-  pthread_mutex_unlock(&cache->cacheMutex);
+  pthread_mutex_unlock(&localCache->cacheMutex);
   return 0;
 }
 
 // CashObject must be properly allocated!
 // Don't reuse pushed cache Object. The memory is now manged by the cache
 // and could be freed or moved at any point in time
-int genericPushToCache(tempCache *cache, cacheObject *cO) {
+int genericPushToCache(simpleCache *localCache, cacheObject *cO) {
   cacheObject **tempCoRef;
-  if (genericGetCoRefByKey(cache, cO->key, cO->keySize, &tempCoRef)) {
-    pthread_mutex_lock(&cache->cacheMutex);
-    cache->freeCoFn(*tempCoRef);
+  if (genericGetCoRefByKey(localCache, cO->key, cO->keySize, &tempCoRef)) {
+    pthread_mutex_lock(&localCache->cacheMutex);
+    localCache->freeCoFn(*tempCoRef);
     *tempCoRef = cO;
 
-    pthread_mutex_unlock(&cache->cacheMutex);
+    pthread_mutex_unlock(&localCache->cacheMutex);
   } else {
-    pthread_mutex_lock(&cache->cacheMutex);
-    if (cache->nCacheSize <= MAX_CACHE_SIZE) {
-      if (cache->nCacheSize == 0) {
-        cache->keyValStore = malloc(sizeof(cacheObject*));
-        if (cache->keyValStore == NULL) {
+    pthread_mutex_lock(&localCache->cacheMutex);
+    if (localCache->nCacheSize <= MAX_CACHE_SIZE) {
+      if (localCache->nCacheSize == 0) {
+        localCache->keyValStore = malloc(sizeof(cacheObject*));
+        if (localCache->keyValStore == NULL) {
           return errMalloc;
         }
       } else {
-        cache->keyValStore = realloc(cache->keyValStore, sizeof(cacheObject*)*(cache->nCacheSize+1));
-        if (cache->keyValStore == NULL) {
+        localCache->keyValStore = realloc(localCache->keyValStore, sizeof(cacheObject*)*(localCache->nCacheSize+1));
+        if (localCache->keyValStore == NULL) {
           return errMalloc;
         }
       }
-      cache->keyValStore[cache->nCacheSize] = cO;
-      cache->nCacheSize++;
+      localCache->keyValStore[localCache->nCacheSize] = cO;
+      localCache->nCacheSize++;
     }
-    pthread_mutex_unlock(&cache->cacheMutex);
+    pthread_mutex_unlock(&localCache->cacheMutex);
   }
   return success;
 }
@@ -213,7 +219,7 @@ int initCacheClient(tempCacheClient **cacheClient) {
   if (pthread_mutex_init(&(*cacheClient)->cacheClientMutex, NULL) != 0) {
     return errInit;
   }
-  (*cacheClient)->tempReadBuffer = malloc(sizeof(char)*SERVER_BUFF_SIZE);
+  // (*cacheClient)->tempReadBuffer = malloc(sizeof(char)*SERVER_BUFF_SIZE);
 
   return success;
 }
@@ -334,30 +340,101 @@ int cacheClientPullByKey(tempCacheClient *cacheClient, void *key, int keySize, c
     return errIO;
   }
 
-  read(cacheClient->sockfd, cacheClient->tempReadBuffer, SERVER_BUFF_SIZE);
-
-  
 
   pthread_mutex_unlock(&cacheClient->cacheClientMutex);
   free(sendBuff);
   return success;
 }
 
+// void *cacheClientPullHandler(void *cacheClient) {
+//   cacheClient *cacheClient = (cacheClient*)cacheP;
+//
+//   char *readBuff = malloc(sizeof(char)*SERVER_BUFF_SIZE);
+//   if (readBuff == NULL) {
+//     close(socket);
+//     pthread_exit(NULL);
+//   }
+//
+//   cacheObject *tempCo = malloc(sizeof(cacheObject));
+//   if (tempCo == NULL) {
+//     close(socket);
+//     pthread_exit(NULL);
+//   }
+//
+//   int readBuffSize = 0;
+//   uint16_t tempProtocolSize = 0;
+//   int readSizePointer = 0;
+//   int nextIsKey = 1;
+//   int keySizeSize = sizeof(tempCo->keySize);
+//   cacheObject *copiedCo;
+//   while(1) {
+//     readBuffSize = read(socket, readBuff, SERVER_BUFF_SIZE);
+//     if (readBuffSize == -1) {
+//       close(socket);
+//       pthread_exit(NULL);
+//     }
+//     tempProtocolSize = 0;
+//     // TODO implement tcp complete-message-buff independent message handling
+//     if (readBuffSize >= keySizeSize) {
+//       readSizePointer = 0;
+//       memcpy(&tempProtocolSize, readBuff, keySizeSize);
+//       readSizePointer += keySizeSize;
+//       tempProtocolSize = ntohs(tempProtocolSize);
+//
+//       if (readBuffSize >= tempProtocolSize+keySizeSize) {
+//         tempCo->keySize = tempProtocolSize;
+//         tempCo->key = malloc(tempProtocolSize);
+//         if (tempCo->key == NULL) {
+//           close(socket);
+//           pthread_exit(NULL);
+//         }
+//         memcpy(tempCo->key, readBuff+readSizePointer, tempProtocolSize);
+//         readSizePointer += tempProtocolSize;
+//       }
+//
+//       memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
+//       readSizePointer += keySizeSize;
+//       tempProtocolSize = ntohs(tempProtocolSize);
+//
+//       // is a push operation, checking if enough memory is in the buffer
+//       if (readBuffSize >= tempProtocolSize+keySizeSize && tempProtocolSize != 0) {
+//         tempCo->valSize = tempProtocolSize;
+//         tempCo->val = malloc(tempProtocolSize);
+//         if (tempCo->key == NULL) {
+//           close(socket);
+//           pthread_exit(NULL);
+//         }
+//         memcpy(tempCo->val, readBuff+readSizePointer, tempProtocolSize);
+//
+//         copiedCo = NULL;
+//         if (cpyCacheObject(&copiedCo, tempCo) != 0) {
+//           close(socket);
+//           pthread_exit(NULL);
+//         }
+//
+//         genericPushToCache(argss->cache, copiedCo);
+//
+//         free(tempCo->val);
+//         tempCo->val = NULL;
+//       }
+//     }
+//   }
+// }
 
 void *cacheSurveillance(void *cacheP) {
   tempCache *cache = (tempCache*)cacheP;
   while (1) {
-    pthread_mutex_lock(&cache->cacheMutex);
+    pthread_mutex_lock(&cache->localCache->cacheMutex);
     printf("----------------- cacheSurveillance ----------------- \n");
-    printf("Rows: %d \n", cache->nCacheSize);
-    for (int i = 0; i < cache->nCacheSize; i++) {
-      printf("row %d - k: '%.*s'(%d) v: '%.*s'(%d) \n", i, cache->keyValStore[i]->keySize,
-                                                          (char*)cache->keyValStore[i]->key, cache->keyValStore[i]->keySize,
-                                                          cache->keyValStore[i]->valSize, (char*)cache->keyValStore[i]->val,
-                                                          cache->keyValStore[i]->valSize);
+    printf("Rows: %d \n", cache->localCache->nCacheSize);
+    for (int i = 0; i < cache->localCache->nCacheSize; i++) {
+      printf("row %d - k: '%.*s'(%d) v: '%.*s'(%d) \n", i, cache->localCache->keyValStore[i]->keySize,
+                                                          (char*)cache->localCache->keyValStore[i]->key, cache->localCache->keyValStore[i]->keySize,
+                                                          cache->localCache->keyValStore[i]->valSize, (char*)cache->localCache->keyValStore[i]->val,
+                                                          cache->localCache->keyValStore[i]->valSize);
     }
     printf("-----------------                    ----------------- \n");
-    pthread_mutex_unlock(&cache->cacheMutex);
+    pthread_mutex_unlock(&cache->localCache->cacheMutex);
     sleep(5);
   }
 }
@@ -430,14 +507,14 @@ void *clientHandle(void *clientArgs) {
           pthread_exit(NULL);
         }
 
-        genericPushToCache(argss->cache, copiedCo);
+        genericPushToCache(argss->cache->localCache, copiedCo);
 
         free(tempCo->val);
         tempCo->val = NULL;
       // is a pull operation
       } else {
-        genericGetByKey(argss->cache, tempCo->key, tempCo->keySize, tempCo);
-        printf("k: %s v: %s \n", (char*)tempCo->key, (char*)tempCo->val);
+        genericGetByKey(argss->cache->localCache, tempCo->key, tempCo->keySize, tempCo);
+        printf("(query) k: %s v: %s \n", (char*)tempCo->key, (char*)tempCo->val);
 
         cacheReplyToPull(socket, tempCo);
 
