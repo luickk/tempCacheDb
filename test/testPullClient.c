@@ -36,7 +36,6 @@ int main() {
   insert2->val = "testVal6";
   insert2->valSize = 8;
 
-
   tempCacheClient *cacheClient;
   int err = initCacheClient(&cacheClient);
   if (err != 0) {
