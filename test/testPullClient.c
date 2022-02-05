@@ -52,11 +52,13 @@ int main() {
 
   cacheObject *pulledCo = malloc(sizeof(cacheObject));
   while (1) {
-    err = cacheClientPullByKey(cacheClient, insert2->key, insert2->keySize, pulledCo);
+    err = cacheClientPullByKey(cacheClient, insert2->key, insert2->keySize, &pulledCo);
     if (err != 0) {
       printf("cacheClientPushO err code %d \n", err);
       return 1;
     }
+
+    printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, pulledCo->valSize, (char*)pulledCo->val);
     usleep(100000);
   }
 
