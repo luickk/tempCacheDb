@@ -117,6 +117,20 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+test/CMakeFiles/testPushPullClient.dir/rule:
+	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPushPullClient.dir/rule
+.PHONY : test/CMakeFiles/testPushPullClient.dir/rule
+
+# Convenience name for target.
+testPushPullClient: test/CMakeFiles/testPushPullClient.dir/rule
+.PHONY : testPushPullClient
+
+# fast build rule for target.
+testPushPullClient/fast:
+	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/build
+.PHONY : testPushPullClient/fast
+
+# Convenience name for target.
 test/CMakeFiles/testPullClient.dir/rule:
 	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPullClient.dir/rule
 .PHONY : test/CMakeFiles/testPullClient.dir/rule
@@ -258,6 +272,30 @@ testPushClient.c.s:
 	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/testPushClient.c.s
 .PHONY : testPushClient.c.s
 
+testPushPullClient.o: testPushPullClient.c.o
+.PHONY : testPushPullClient.o
+
+# target to build an object file
+testPushPullClient.c.o:
+	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.o
+.PHONY : testPushPullClient.c.o
+
+testPushPullClient.i: testPushPullClient.c.i
+.PHONY : testPushPullClient.i
+
+# target to preprocess a source file
+testPushPullClient.c.i:
+	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.i
+.PHONY : testPushPullClient.c.i
+
+testPushPullClient.s: testPushPullClient.c.s
+.PHONY : testPushPullClient.s
+
+# target to generate assembly for a file
+testPushPullClient.c.s:
+	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.s
+.PHONY : testPushPullClient.c.s
+
 testServer.o: testServer.c.o
 .PHONY : testServer.o
 
@@ -317,6 +355,7 @@ help:
 	@echo "... localTest"
 	@echo "... testPullClient"
 	@echo "... testPushClient"
+	@echo "... testPushPullClient"
 	@echo "... testServer"
 	@echo "... testServerAndLocal"
 	@echo "... localTest.o"
@@ -328,6 +367,9 @@ help:
 	@echo "... testPushClient.o"
 	@echo "... testPushClient.i"
 	@echo "... testPushClient.s"
+	@echo "... testPushPullClient.o"
+	@echo "... testPushPullClient.i"
+	@echo "... testPushPullClient.s"
 	@echo "... testServer.o"
 	@echo "... testServer.i"
 	@echo "... testServer.s"

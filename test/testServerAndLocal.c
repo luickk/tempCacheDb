@@ -36,7 +36,11 @@ int main() {
     return 1;
   }
 
-  cacheObject *insert = malloc(sizeof(cacheObject));
+  cacheObject *insert;
+  err = initCacheObject(&insert);
+  if (err != 0) {
+    return err;
+  }
   insert->key = "test";
   insert->keySize = 4;
   insert->val = "testVal";
@@ -47,7 +51,11 @@ int main() {
     return 1;
   }
 
-  cacheObject *insert2 = malloc(sizeof(cacheObject));
+  cacheObject *insert2;
+  err = initCacheObject(&insert2);
+  if (err != 0) {
+    return err;
+  }
   insert2->key = "peter2";
   insert2->keySize = 6;
   insert2->val = "testVal2";
@@ -58,8 +66,11 @@ int main() {
     return 1;
   }
 
-  cacheObject *insert3 = malloc(sizeof(cacheObject));
-
+  cacheObject *insert3;
+  err = initCacheObject(&insert3);
+  if (err != 0) {
+    return err;
+  }
   insert3->key = "peterr";
   insert3->keySize = 6;
   insert3->val = "testVal3";
@@ -71,7 +82,11 @@ int main() {
   }
 
 
-  cacheObject *insert4 = malloc(sizeof(cacheObject));
+  cacheObject *insert4;
+  err = initCacheObject(&insert4);
+  if (err != 0) {
+    return err;
+  }
   insert4->key = "peterr";
   insert4->keySize = 6;
   insert4->val = "rrrr";

@@ -1,5 +1,6 @@
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles/rebuild_cache.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles/edit_cache.dir
+/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/testPushPullClient.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/testPullClient.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/localTest.dir
 /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/testServer.dir

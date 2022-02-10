@@ -30,14 +30,18 @@ void printCache(tempCache *cache) {
 }
 
 int main() {
-  cacheObject *insert2 = malloc(sizeof(cacheObject));
-  insert2->key = "test";
+  cacheObject *insert2;
+  int err = initCacheObject(&insert2);
+  if (err != 0) {
+    return err;
+  }
+  insert2->key = "tescyvyt";
   insert2->keySize = 4;
   insert2->val = "testVal6";
   insert2->valSize = 8;
 
   tempCacheClient *cacheClient;
-  int err = initCacheClient(&cacheClient);
+  err = initCacheClient(&cacheClient);
   if (err != 0) {
     printf("cClientInit err code %d \n", err);
     return 1;
@@ -50,7 +54,11 @@ int main() {
   }
   printf("connected successfully \n");
 
-  cacheObject *pulledCo = malloc(sizeof(cacheObject));
+  cacheObject *pulledCo;
+  err = initCacheObject(&pulledCo);
+  if (err != 0) {
+    return err;
+  }
   while (1) {
     err = cacheClientPullByKey(cacheClient, insert2->key, insert2->keySize, &pulledCo);
     if (err != 0) {
@@ -59,7 +67,7 @@ int main() {
     }
 
     printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, pulledCo->valSize, (char*)pulledCo->val);
-    usleep(100000);
+    // usleep(100000);
   }
 
   return 0;

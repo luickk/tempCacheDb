@@ -78,6 +78,7 @@ clean: test/clean
 # Directory level rules for directory test
 
 # Recursive "all" directory target.
+test/all: test/CMakeFiles/testPushPullClient.dir/all
 test/all: test/CMakeFiles/testPullClient.dir/all
 test/all: test/CMakeFiles/localTest.dir/all
 test/all: test/CMakeFiles/testServer.dir/all
@@ -90,12 +91,39 @@ test/preinstall:
 .PHONY : test/preinstall
 
 # Recursive "clean" directory target.
+test/clean: test/CMakeFiles/testPushPullClient.dir/clean
 test/clean: test/CMakeFiles/testPullClient.dir/clean
 test/clean: test/CMakeFiles/localTest.dir/clean
 test/clean: test/CMakeFiles/testServer.dir/clean
 test/clean: test/CMakeFiles/testServerAndLocal.dir/clean
 test/clean: test/CMakeFiles/testPushClient.dir/clean
 .PHONY : test/clean
+
+#=============================================================================
+# Target rules for target test/CMakeFiles/testPushPullClient.dir
+
+# All Build rule for target.
+test/CMakeFiles/testPushPullClient.dir/all:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/depend
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=7,8 "Built target testPushPullClient"
+.PHONY : test/CMakeFiles/testPushPullClient.dir/all
+
+# Build rule for subdir invocation for target.
+test/CMakeFiles/testPushPullClient.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPushPullClient.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+.PHONY : test/CMakeFiles/testPushPullClient.dir/rule
+
+# Convenience name for target.
+testPushPullClient: test/CMakeFiles/testPushPullClient.dir/rule
+.PHONY : testPushPullClient
+
+# clean rule for target.
+test/CMakeFiles/testPushPullClient.dir/clean:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/clean
+.PHONY : test/CMakeFiles/testPushPullClient.dir/clean
 
 #=============================================================================
 # Target rules for target test/CMakeFiles/testPullClient.dir
@@ -156,7 +184,7 @@ test/CMakeFiles/localTest.dir/clean:
 test/CMakeFiles/testServer.dir/all:
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=7,8 "Built target testServer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=9,10 "Built target testServer"
 .PHONY : test/CMakeFiles/testServer.dir/all
 
 # Build rule for subdir invocation for target.
@@ -182,7 +210,7 @@ test/CMakeFiles/testServer.dir/clean:
 test/CMakeFiles/testServerAndLocal.dir/all:
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=9,10 "Built target testServerAndLocal"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=11,12 "Built target testServerAndLocal"
 .PHONY : test/CMakeFiles/testServerAndLocal.dir/all
 
 # Build rule for subdir invocation for target.

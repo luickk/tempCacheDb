@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named testPushPullClient
+
+# Build rule for target.
+testPushPullClient: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testPushPullClient
+.PHONY : testPushPullClient
+
+# fast build rule for target.
+testPushPullClient/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/build
+.PHONY : testPushPullClient/fast
+
+#=============================================================================
 # Target rules for targets named testPullClient
 
 # Build rule for target.
@@ -192,6 +205,7 @@ help:
 	@echo "... localTest"
 	@echo "... testPullClient"
 	@echo "... testPushClient"
+	@echo "... testPushPullClient"
 	@echo "... testServer"
 	@echo "... testServerAndLocal"
 .PHONY : help

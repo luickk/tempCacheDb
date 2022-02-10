@@ -16,3 +16,6 @@ target_link_libraries(testServer INTERFACE tempCacheDb)
 
 add_executable(localTest localTest.c)
 target_link_libraries(localTest INTERFACE tempCacheDb)
+
+add_executable(testPushPullClient testPushPullClient.c)
+target_link_libraries(testPushPullClient INTERFACE tempCacheDb)
