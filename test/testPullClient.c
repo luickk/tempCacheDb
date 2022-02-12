@@ -35,7 +35,7 @@ int main() {
   if (err != 0) {
     return err;
   }
-  insert2->key = "tescyvyt";
+  insert2->key = "test";
   insert2->keySize = 4;
   insert2->val = "testVal6";
   insert2->valSize = 8;

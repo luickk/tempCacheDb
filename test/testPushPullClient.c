@@ -58,7 +58,7 @@ void *push(void *argss) {
     if (err != 0) {
       printf("cacheClientPushO err code %d \n", err);
     }
-    // usleep(100000);
+    usleep(1000);
   }
 }
 
@@ -105,7 +105,7 @@ int main() {
     }
 
     printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, pulledCo->valSize, (char*)pulledCo->val);
-    usleep(100000);
+    usleep(1000);
   }
 
   return 0;

@@ -331,19 +331,19 @@ void *cacheClientPullHandler(void *argss) {
       pthread_exit(NULL);
     }
     tempProtocolSize = 0;
+    readSizePointer = 0;
     // TODO implement tcp complete-message-buff independent message handling
     if (readBuffSize >= sizeof(uint8_t)) {
 
-      readSizePointer = 0;
-      memcpy(&tempProtocolSize, readBuff, sizeof(uint8_t));
+      memcpy(&tempProtocolSize, readBuff+readSizePointer, sizeof(uint8_t));
       readSizePointer += sizeof(uint8_t);
-      opCode = ntohs(tempProtocolSize);
+      opCode = tempProtocolSize;
 
-      memcpy(&tempProtocolSize, readBuff, keySizeSize);
+      memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
       readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
 
-      if (readBuffSize >= tempProtocolSize+keySizeSize && isKey) {
+      if ((readBuffSize-readSizePointer) >= tempProtocolSize && isKey) {
         isKey = 0;
         tempCo->keySize = tempProtocolSize;
         tempCo->key = malloc(tempProtocolSize);
@@ -359,7 +359,8 @@ void *cacheClientPullHandler(void *argss) {
       readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
 
-      if (readBuffSize >= tempProtocolSize+keySizeSize && !isKey) {
+      if ((readBuffSize-readSizePointer) >= tempProtocolSize && !isKey) {
+        isKey = 1;
         if (opCode == 3) {
           tempCo->valSize = tempProtocolSize;
           tempCo->val = malloc(tempProtocolSize);
@@ -440,7 +441,7 @@ int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO) {
     return errMalloc;
   }
   sendBuffSize = 0;
-  netByteOrderSize = htons(2);
+  netByteOrderSize = 2;
   memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint8_t));
   sendBuffSize += sizeof(uint8_t);
 
@@ -474,7 +475,7 @@ int cacheReplyToPull(int sockfd, cacheObject *cO) {
     return errMalloc;
   }
   sendBuffSize = 0;
-  netByteOrderSize = htons(3);
+  netByteOrderSize = 3;
   memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint8_t));
   sendBuffSize += sizeof(uint8_t);
 
@@ -510,7 +511,7 @@ int cacheClientPullByKey(tempCacheClient *cacheClient, void *key, int keySize, c
   int err;
 
   sendBuffSize = 0;
-  netByteOrderSize = htons(1);
+  netByteOrderSize = 1;
   memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint8_t));
   sendBuffSize += sizeof(uint8_t);
 
@@ -614,6 +615,7 @@ void *clientHandle(void *clientArgs) {
       close(socket);
       pthread_exit(NULL);
     }
+
     tempProtocolSize = 0;
     // TODO implement tcp complete-message-buff independent message handling
     if (readBuffSize >= sizeof(uint8_t)) {
@@ -621,13 +623,13 @@ void *clientHandle(void *clientArgs) {
       readSizePointer = 0;
       memcpy(&tempProtocolSize, readBuff, sizeof(uint8_t));
       readSizePointer += sizeof(uint8_t);
-      opCode = ntohs(tempProtocolSize);
+      opCode = tempProtocolSize;
 
-      memcpy(&tempProtocolSize, readBuff, keySizeSize);
+      memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
       readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
 
-      if (readBuffSize >= tempProtocolSize+keySizeSize+sizeof(uint8_t) && isKey) {
+      if ((readBuffSize-readSizePointer) >= tempProtocolSize && isKey) {
         isKey = 0;
         tempCo->keySize = tempProtocolSize;
         tempCo->key = malloc(tempProtocolSize);
@@ -643,10 +645,8 @@ void *clientHandle(void *clientArgs) {
       readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
 
-      if (readBuffSize >= tempProtocolSize+keySizeSize+sizeof(uint8_t) && !isKey) {
-        printf("%d \n", opCode);
+      if ((readBuffSize-readSizePointer) >= tempProtocolSize && !isKey) {
         if (opCode == 2) {
-          isKey = 1;
           tempCo->valSize = tempProtocolSize;
           tempCo->val = malloc(tempProtocolSize);
           if (tempCo->key == NULL) {
@@ -660,14 +660,12 @@ void *clientHandle(void *clientArgs) {
             close(socket);
             pthread_exit(NULL);
           }
-
           genericPushToCache(cache->localCache, copiedCo);
-
         } else if (opCode == 1) {
-          isKey = 1;
           genericGetByKey(cache->localCache, tempCo->key, tempCo->keySize, tempCo);
           cacheReplyToPull(socket, tempCo);
         }
+          isKey = 1;
         free(tempCo->val);
         tempCo->val = NULL;
       }
