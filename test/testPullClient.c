@@ -59,15 +59,18 @@ int main() {
   if (err != 0) {
     return err;
   }
+  int i = 0;
   while (1) {
     err = cacheClientPullByKey(cacheClient, insert2->key, insert2->keySize, &pulledCo);
     if (err != 0) {
       printf("cacheClientPushO err code %d \n", err);
       return 1;
     }
-
+    i++;
+    pthread_mutex_lock(&cacheClient->clientReqReplyLink->cacheMutex);
     printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, pulledCo->valSize, (char*)pulledCo->val);
     // usleep(100000);
+    pthread_mutex_unlock(&cacheClient->clientReqReplyLink->cacheMutex);
   }
 
   return 0;
