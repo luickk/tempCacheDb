@@ -68,7 +68,8 @@ int main() {
     }
     i++;
     pthread_mutex_lock(&cacheClient->clientReqReplyLink->cacheMutex);
-    printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, pulledCo->valSize, (char*)pulledCo->val);
+    // printf("(query up) %d \n", ((struct clientReqReplyLinkVal*)pulledCo->val)->updated);
+    printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, ((struct clientReqReplyLinkVal*)pulledCo->val)->valSize, (char*)((struct clientReqReplyLinkVal*)pulledCo->val)->val);
     // usleep(100000);
     pthread_mutex_unlock(&cacheClient->clientReqReplyLink->cacheMutex);
   }

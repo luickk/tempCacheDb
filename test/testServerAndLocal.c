@@ -45,7 +45,7 @@ int main() {
   insert->keySize = 4;
   insert->val = "testVal";
   insert->valSize = 7;
-  err = genericPushToCache(cache1->localCache, insert);
+  err = genericPushToCache(cache1->localCache, insert, NULL);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
@@ -60,7 +60,7 @@ int main() {
   insert2->keySize = 6;
   insert2->val = "testVal2";
   insert2->valSize = 8;
-  err = genericPushToCache(cache1->localCache, insert2);
+  err = genericPushToCache(cache1->localCache, insert2, NULL);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
@@ -75,7 +75,7 @@ int main() {
   insert3->keySize = 6;
   insert3->val = "testVal3";
   insert3->valSize = 8;
-  err = genericPushToCache(cache1->localCache, insert3);
+  err = genericPushToCache(cache1->localCache, insert3, NULL);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
@@ -91,7 +91,7 @@ int main() {
   insert4->keySize = 6;
   insert4->val = "rrrr";
   insert4->valSize = 4;
-  err = genericPushToCache(cache1->localCache, insert4);
+  err = genericPushToCache(cache1->localCache, insert4, NULL);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;
