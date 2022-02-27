@@ -92,6 +92,7 @@ testPushPullClient_EXTERNAL_OBJECTS =
 
 test/testPushPullClient: test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.o
 test/testPushPullClient: test/CMakeFiles/testPushPullClient.dir/build.make
+test/testPushPullClient: libtempCacheDb.a
 test/testPushPullClient: test/CMakeFiles/testPushPullClient.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable testPushPullClient"
 	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/testPushPullClient.dir/link.txt --verbose=$(VERBOSE)

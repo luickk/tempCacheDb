@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named tempCacheDb
+
+# Build rule for target.
+tempCacheDb: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tempCacheDb
+.PHONY : tempCacheDb
+
+# fast build rule for target.
+tempCacheDb/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tempCacheDb.dir/build.make CMakeFiles/tempCacheDb.dir/build
+.PHONY : tempCacheDb/fast
+
+#=============================================================================
 # Target rules for targets named testPushPullClient
 
 # Build rule for target.
@@ -194,6 +207,30 @@ testPushClient/fast:
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/build
 .PHONY : testPushClient/fast
 
+src/tempCacheDb.o: src/tempCacheDb.c.o
+.PHONY : src/tempCacheDb.o
+
+# target to build an object file
+src/tempCacheDb.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tempCacheDb.dir/build.make CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.o
+.PHONY : src/tempCacheDb.c.o
+
+src/tempCacheDb.i: src/tempCacheDb.c.i
+.PHONY : src/tempCacheDb.i
+
+# target to preprocess a source file
+src/tempCacheDb.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tempCacheDb.dir/build.make CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.i
+.PHONY : src/tempCacheDb.c.i
+
+src/tempCacheDb.s: src/tempCacheDb.c.s
+.PHONY : src/tempCacheDb.s
+
+# target to generate assembly for a file
+src/tempCacheDb.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tempCacheDb.dir/build.make CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.s
+.PHONY : src/tempCacheDb.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -203,11 +240,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... localTest"
+	@echo "... tempCacheDb"
 	@echo "... testPullClient"
 	@echo "... testPushClient"
 	@echo "... testPushPullClient"
 	@echo "... testServer"
 	@echo "... testServerAndLocal"
+	@echo "... src/tempCacheDb.o"
+	@echo "... src/tempCacheDb.i"
+	@echo "... src/tempCacheDb.s"
 .PHONY : help
 
 

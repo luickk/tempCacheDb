@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../tempCacheDb.h"
+#include "tempCacheDb.h"
 
 int strKeyCmp(void *key1, void *key2, int size) {
 

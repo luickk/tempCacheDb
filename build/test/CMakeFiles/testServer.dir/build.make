@@ -92,6 +92,7 @@ testServer_EXTERNAL_OBJECTS =
 
 test/testServer: test/CMakeFiles/testServer.dir/testServer.c.o
 test/testServer: test/CMakeFiles/testServer.dir/build.make
+test/testServer: libtempCacheDb.a
 test/testServer: test/CMakeFiles/testServer.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable testServer"
 	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/testServer.dir/link.txt --verbose=$(VERBOSE)

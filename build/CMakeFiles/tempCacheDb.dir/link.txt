@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libtempCacheDb.a CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libtempCacheDb.a

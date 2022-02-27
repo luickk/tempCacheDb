@@ -1,14 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../tempCacheDb.h"
-
-struct clientArgs {
-
-};
+#include "tempCacheDb.h"
 
 int strKeyCmp(void *key1, void *key2, int size) {
-
   /* does not work with void pointers? returns always 0 */
   // int t = strncmp(key1, key2, size);
 
