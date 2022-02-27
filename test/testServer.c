@@ -36,7 +36,7 @@ int main() {
     return 1;
   }
 
-  err = listenDbServer(cache1, 8080);
+  err = listenDb(cache1, 8080);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;

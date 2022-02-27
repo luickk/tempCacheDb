@@ -49,7 +49,7 @@ void *push(void *argss) {
   while (1) {
     sprintf(r, "peter%d", i++);
     printf("%s \n", (char*)insert2->key);
-    err = cacheClientPushObject(cacheClient, insert2);
+    err = cacheClientPushCacheObject(cacheClient, insert2);
     if (err != 0) {
       printf("cacheClientPushO err code %d \n", err);
     }
@@ -93,9 +93,9 @@ int main() {
     return err;
   }
   while (1) {
-    err = cacheClientPullByKey(cacheClient, insert2->key, insert2->keySize, &pulledCo);
+    err = cacheClientPullCacheObject(cacheClient, insert2->key, insert2->keySize, &pulledCo);
     if (err != 0) {
-      printf("cacheClientPullByKey err code %d \n", err);
+      printf("cacheClientPullCacheObject err code %d \n", err);
       return 1;
     }
 

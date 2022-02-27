@@ -61,7 +61,7 @@ int main() {
   while (1) {
     sprintf(r, "peter%d", i++);
     printf("%s \n", (char*)insert2->key);
-    err = cacheClientPushObject(cacheClient, insert2);
+    err = cacheClientPushCacheObject(cacheClient, insert2);
     if (err != 0) {
       printf("cacheClientPushO err code %d \n", err);
       return 1;

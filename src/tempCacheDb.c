@@ -72,7 +72,7 @@ int initCacheObject(cacheObject **cO) {
   return success;
 }
 
-int genericGetByKey(simpleCache *localCache, void *key, int keySize, cacheObject *resultingCo) {
+int getCacheObject(simpleCache *localCache, void *key, int keySize, cacheObject *resultingCo) {
   pthread_mutex_lock(&localCache->cacheMutex);
   for (int i = 0; i < localCache->nCacheSize; i++) {
     if (localCache->keyValStore[i]->keySize == keySize) {
@@ -90,7 +90,7 @@ int genericGetByKey(simpleCache *localCache, void *key, int keySize, cacheObject
   return 0;
 }
 
-int genericGetCoRefByKey(simpleCache *localCache, void *key, int keySize, cacheObject ***resultingCo) {
+int getCacheObjectRef(simpleCache *localCache, void *key, int keySize, cacheObject ***resultingCo) {
   pthread_mutex_lock(&localCache->cacheMutex);
   for (int i = 0; i < localCache->nCacheSize; i++) {
     if (localCache->keyValStore[i]->keySize == keySize) {
@@ -145,10 +145,10 @@ int cpyCacheObject(cacheObject **dest, cacheObject *src) {
   return success;
 }
 
-int genericPushToCache(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRef) {
+int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRef) {
   cacheObject **tempCoRef;
   cacheObject *toFreeCo;
-  if (genericGetCoRefByKey(sCache, cO->key, cO->keySize, &tempCoRef)) {
+  if (getCacheObjectRef(sCache, cO->key, cO->keySize, &tempCoRef)) {
     pthread_mutex_lock(&sCache->cacheMutex);
     if (cO->val == NULL && cO->valSize == 0) {
       // TODO free...
@@ -256,7 +256,7 @@ int freeCacheClient(tempCacheClient **cacheClient) {
 }
 
 // todo pthread free stack
-void *cacheClientPullHandler(void *argss) {
+void *cacheClientListenDb(void *argss) {
   struct pthreadClientHandleArgs *args = (struct pthreadClientHandleArgs*) argss;
   tempCacheClient *cacheClient = args->cache;
   int socket = args->socket;
@@ -357,7 +357,7 @@ void *cacheClientPullHandler(void *argss) {
         }
         memcpy(tempCo->val, readBuff+readSizePointer, tempProtocolSize);
 
-        if (genericGetCoRefByKey(cacheClient->clientReqReplyLink, tempCo->key, tempCo->keySize, &tempCoReqRepRef)) {
+        if (getCacheObjectRef(cacheClient->clientReqReplyLink, tempCo->key, tempCo->keySize, &tempCoReqRepRef)) {
           pthread_mutex_lock(&cacheClient->clientReqReplyLink->cacheMutex);
           struct clientReqReplyLinkVal* tempCoReqRepRefVal = (struct clientReqReplyLinkVal*)(*tempCoReqRepRef)->val;
           tempCoReqRepRefVal->valSize = tempCo->valSize;
@@ -433,14 +433,14 @@ int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int po
   clientArgs->socket = cacheClient->sockfd;
   clientArgs->cache = (void*)cacheClient;
 
-  if(pthread_create(&cacheClient->pthread, NULL, cacheClientPullHandler, (void*)clientArgs) != 0 ) {
+  if(pthread_create(&cacheClient->pthread, NULL, cacheClientListenDb, (void*)clientArgs) != 0 ) {
     return errIO;
   }
 
   return success;
 }
 
-int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO) {
+int cacheClientPushCacheObject(tempCacheClient *cacheClient, cacheObject *cO) {
   int keySizeSize = sizeof(cO->keySize);
   int sendBuffSize = sizeof(uint8_t) + keySizeSize + cO->keySize + keySizeSize + cO->valSize;
   char *sendBuff = malloc(sizeof(char) * sendBuffSize);
@@ -508,7 +508,7 @@ int cacheReplyToPull(int sockfd, cacheObject *cO) {
   return success;
 }
 
-int cacheClientPullByKey(tempCacheClient *cacheClient, void *key, int keySize, cacheObject **pulledCo) {
+int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keySize, cacheObject **pulledCo) {
   int keySizeSize = sizeof((*pulledCo)->keySize);
   int sendBuffSize = sizeof(uint8_t) + keySizeSize + keySize + keySizeSize;
   int netByteOrderSize = 0;
@@ -552,8 +552,8 @@ int cacheClientPullByKey(tempCacheClient *cacheClient, void *key, int keySize, c
   clientReqReply->valSize = sizeof(struct clientReqReplyLinkVal);
   ((struct clientReqReplyLinkVal*) clientReqReply->val)->updated = 0;
 
-  // TODO optimize genericPushToCache not to reallocated whole clientReqReplyLinkVal struct everytime
-  err = genericPushToCache(cacheClient->clientReqReplyLink, clientReqReply, &cacheRef);
+  // TODO optimize pushCacheObject not to reallocated whole clientReqReplyLinkVal struct everytime
+  err = pushCacheObject(cacheClient->clientReqReplyLink, clientReqReply, &cacheRef);
   if (err != 0) {
     return errIO;
   }
@@ -705,9 +705,9 @@ void *clientHandle(void *clientArgs) {
           close(socket);
           pthread_exit(NULL);
         }
-        genericPushToCache(cache->localCache, copiedCo, NULL);
+        pushCacheObject(cache->localCache, copiedCo, NULL);
       } else if (opCode == 1) {
-        genericGetByKey(cache->localCache, tempCo->key, tempCo->keySize, tempCo);
+        getCacheObject(cache->localCache, tempCo->key, tempCo->keySize, tempCo);
         cacheReplyToPull(socket, tempCo);
       }
       nElementParsed++;
@@ -737,7 +737,7 @@ void *clientHandle(void *clientArgs) {
   return NULL;
 }
 
-int listenDbServer(tempCache *cache, int port) {
+int listenDb(tempCache *cache, int port) {
   int tmpSocket;
   socklen_t addrSize;
   struct sockaddr_in tempClient;

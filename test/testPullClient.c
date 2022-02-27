@@ -61,7 +61,7 @@ int main() {
   }
   int i = 0;
   while (1) {
-    err = cacheClientPullByKey(cacheClient, insert2->key, insert2->keySize, &pulledCo);
+    err = cacheClientPullCacheObject(cacheClient, insert2->key, insert2->keySize, &pulledCo);
     if (err != 0) {
       printf("cacheClientPushO err code %d \n", err);
       return 1;

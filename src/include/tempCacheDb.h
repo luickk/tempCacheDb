@@ -74,62 +74,53 @@ enum errCodes {
 
 /* inits and frees */
 
-// enable same socket push&pull
+// simpleCache is a local only cache
 int initSimpleCache(simpleCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn);
 int freeSimpleCache(simpleCache **cache);
-
+// tempCache has an extended feature set and supports remote push/ pull operations (build on simpleCache)
 int initTempCache(tempCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn);
 int freeTempCache(tempCache **cache);
-
 // initializes only the cacheObject struct, not its values!
 int initCacheObject(cacheObject **cO);
 // !assumes that ALL pointers are freeable!
 void freeCacheObjectDefault(cacheObject *cO);
-
+// cacheClient is required for all remote push/pull operations
 int initCacheClient(tempCacheClient **cacheClient);
 int freeCacheClient(tempCacheClient **cacheClient);
 
 /* local cache funcs */
 
+// sets up socket and parses incoming data
+int listenDb(tempCache *cache, int port);
 // returns 1 if cO key has been found in the cache and 0 if not
 // writes to Co val and valSize (mallocs if necessary)
 // !resultingCo must not contain pointer to possibly allocated memory to prevent potential memory leak!
-int genericGetByKey(simpleCache *localCache, void *key, int keySize, cacheObject *resultingCo);
+int getCacheObject(simpleCache *localCache, void *key, int keySize, cacheObject *resultingCo);
+// CashObject must be properly allocated!
+// Don't reuse pushed cache Object. The memory is now manged by the cache
+// and could be freed or moved at any point in time
+// newCoRef returns the address ref to the cacheObject whichs value has been overwritten by the pushed cO
+int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRef);
+int cpyCacheObject(cacheObject **dest, cacheObject *src);
+// thread
+void *cacheSurveillance(void *cacheP);
+
+
+/* cacheClient funcs */
+
+void *cacheClientListenDb(void *argss);
+int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int port);
+int cacheClientPushCacheObject(tempCacheClient *cacheClient, cacheObject *cO);
+int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keySize, cacheObject **pulledCo);
+
+/* private lib functions */
 
 // returns 1 if cO key has been found in the cache and 0 if not
 // writes pointer to resultingCo param from the cache's Co array
 // don't forget to use the caches mutex on the returned array pointer
 // be carefull not to pass a allocated Co to resultingCo as it will not be freed
-int genericGetCoRefByKey(simpleCache *localCache, void *key, int keySize, cacheObject ***resultingCo);
-
-// CashObject must be properly allocated!
-// Don't reuse pushed cache Object. The memory is now manged by the cache
-// and could be freed or moved at any point in time
-// newCoRef returns the address ref to the cacheObject whichs value has been overwritten by the pushed cO
-int genericPushToCache(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRef);
-
-int cpyCacheObject(cacheObject **dest, cacheObject *src);
-
-void *cacheSurveillance(void *cacheP);
-
-void *clientHandle(void *clientArgs);
-
-
-/* private lib functions */
-
+int getCacheObjectRef(simpleCache *localCache, void *key, int keySize, cacheObject ***resultingCo);
 int clientReqReplyLinkKeyCmp(void *key1, void *key2, int size);
-
 int cacheReplyToPull(int sockfd, cacheObject *cO);
-
-/* cacheClient funcs */
-
-// todo pthread free stack
-void *cacheClientPullHandler(void *argss);
-
-int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int port);
-
-int listenDbServer(tempCache *cache, int port);
-
-int cacheClientPushObject(tempCacheClient *cacheClient, cacheObject *cO);
-
-int cacheClientPullByKey(tempCacheClient *cacheClient, void *key, int keySize, cacheObject **pulledCo);
+//thread
+void *clientHandle(void *clientArgs);
