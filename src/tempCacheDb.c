@@ -1,5 +1,7 @@
 #include "include/tempCacheDb.h"
 
+// TODO go through mem frees/allocs throughout program flow
+
 int initSimpleCache(simpleCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn) {
   *cache = malloc(sizeof(simpleCache));
   if (*cache == NULL) {
@@ -151,8 +153,7 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
   if (getCacheObjectRef(sCache, cO->key, cO->keySize, &tempCoRef)) {
     pthread_mutex_lock(&sCache->cacheMutex);
     if (cO->val == NULL && cO->valSize == 0) {
-      // TODO free...
-      // sCache->freeCoFn(cO->val);
+      sCache->freeCoFn(cO->val);
       (*tempCoRef)->val = NULL;
       (*tempCoRef)->valSize = 0;
       return success;
@@ -255,9 +256,31 @@ int freeCacheClient(tempCacheClient **cacheClient) {
   return success;
 }
 
-// todo pthread free stack
-void *cacheClientListenDb(void *argss) {
-  struct pthreadClientHandleArgs *args = (struct pthreadClientHandleArgs*) argss;
+void listenDbCleanUp(void *arg) {
+  struct cacheClientListenDbCleanUpToFree *args = (struct cacheClientListenDbCleanUpToFree*) arg;
+  if (args->readBuff != NULL) {
+    free(args->readBuff);
+  }
+  if (args->respBuff != NULL) {
+    free(args->respBuff);
+  }
+  if (args->args != NULL) {
+    free(args->args);
+  }
+  if (args->mergingMem != NULL) {
+    free(args->mergingMem);
+  }
+  if (args->tempCo != NULL) {
+    freeCacheObjectDefault(args->tempCo);
+  }
+  if (args->leftOverBuff != NULL) {
+    free(args->leftOverBuff);
+  }
+  free(args);
+}
+
+void *cacheClientListenDb(void *arg) {
+  struct pthreadClientHandleArgs *args = (struct pthreadClientHandleArgs*) arg;
   tempCacheClient *cacheClient = args->cache;
   int socket = args->socket;
   int err;
@@ -268,12 +291,13 @@ void *cacheClientListenDb(void *argss) {
     pthread_exit(NULL);
   }
 
-  cacheObject *tempCo;
-  err = initCacheObject(&tempCo);
-  if (err != 0) {
+  cacheObject *tempCo = malloc(sizeof(cacheObject));
+  if (tempCo == NULL) {
     close(socket);
     pthread_exit(NULL);
   }
+  tempCo->val = NULL;
+  tempCo->key = NULL;
 
   cacheObject **tempCoReqRepRef;
 
@@ -286,9 +310,18 @@ void *cacheClientListenDb(void *argss) {
   char *tempReadBuff;
   int keySizeSize = sizeof(tempCo->keySize);
   cacheObject *copiedCo;
+  char *mergingMem;
 
   int opCode = 0;
 
+  struct cacheClientListenDbCleanUpToFree *toFree = malloc(sizeof(struct cacheClientListenDbCleanUpToFree));
+  toFree->readBuff = readBuff;
+  toFree->respBuff = NULL;
+  toFree->args = args;
+  toFree->mergingMem = mergingMem;
+  toFree->tempCo = tempCo;
+  toFree->leftOverBuff = leftOverBuff;
+  pthread_cleanup_push(listenDbCleanUp, (void*)toFree);
   while(1) {
     readBuffSize = read(socket, readBuff, SERVER_BUFF_SIZE);
     if (readBuffSize == -1) {
@@ -301,13 +334,14 @@ void *cacheClientListenDb(void *argss) {
     tempProtocolSize = 0;
     // merging memory
     if (leftOverSize > 0) {
-      char *mergingMem = malloc(leftOverSize + readBuffSize);
+      mergingMem = malloc(leftOverSize + readBuffSize);
       if (mergingMem == NULL) {
         close(socket);
         pthread_exit(NULL);
       }
       memcpy(mergingMem, leftOverBuff, leftOverSize);
       free(leftOverBuff);
+      leftOverBuff = NULL;
       memcpy(mergingMem+leftOverSize, readBuff, readBuffSize);
       tempReadBuff = readBuff;
       readBuffSize += leftOverSize;
@@ -382,10 +416,14 @@ void *cacheClientListenDb(void *argss) {
         nElementParsed++;
         if (leftOverSize > 0) {
           readBuff = tempReadBuff;
+          free(mergingMem);
+          mergingMem = NULL;
         }
         leftOverSize = 0;
         free(tempCo->val);
         tempCo->val = NULL;
+        free(tempCo->key);
+        tempCo->key = NULL;
       }
       if (nElementParsed < 5) {
         leftOverSize = readBuffSize-readSizePointer;
@@ -395,15 +433,7 @@ void *cacheClientListenDb(void *argss) {
       nElementParsed = 0;
     }
   }
-  freeCacheObjectDefault(tempCo);
-  if (leftOverBuff != NULL) {
-    free(leftOverBuff);
-    leftOverBuff = NULL;
-  }
-  if (readBuff != NULL) {
-    free(readBuff);
-    readBuff = NULL;
-  }
+  pthread_cleanup_pop(0);
   return NULL;
 }
 
@@ -598,9 +628,9 @@ void *cacheSurveillance(void *cacheP) {
 }
 
 void *clientHandle(void *clientArgs) {
-  struct pthreadClientHandleArgs *argss = (struct pthreadClientHandleArgs*)clientArgs;
-  tempCache *cache = argss->cache;
-  int socket = argss->socket;
+  struct pthreadClientHandleArgs *args = (struct pthreadClientHandleArgs*)clientArgs;
+  tempCache *cache = args->cache;
+  int socket = args->socket;
   int err;
 
   char *readBuff = malloc(sizeof(char)*SERVER_BUFF_SIZE);
@@ -610,12 +640,13 @@ void *clientHandle(void *clientArgs) {
     pthread_exit(NULL);
   }
 
-  cacheObject *tempCo;
-  err = initCacheObject(&tempCo);
-  if (err != 0) {
+  cacheObject *tempCo = malloc(sizeof(cacheObject));
+  if (tempCo == NULL) {
     close(socket);
     pthread_exit(NULL);
   }
+  tempCo->val = NULL;
+  tempCo->key = NULL;
 
   int readBuffSize = 0;
   uint16_t tempProtocolSize = 0;
@@ -626,9 +657,19 @@ void *clientHandle(void *clientArgs) {
   char *leftOverBuff;
   char *tempReadBuff;
   cacheObject *copiedCo;
+  char *mergingMem;
 
   // pull = 1, push = 2, pullReply = 3
   int opCode = 0;
+
+  struct cacheClientListenDbCleanUpToFree *toFree = malloc(sizeof(struct cacheClientListenDbCleanUpToFree));
+  toFree->readBuff = readBuff;
+  toFree->respBuff = respBuff;
+  toFree->args = args;
+  toFree->mergingMem = mergingMem;
+  toFree->tempCo = tempCo;
+  toFree->leftOverBuff = leftOverBuff;
+  pthread_cleanup_push(listenDbCleanUp, (void*)toFree);
 
   while(1) {
     readBuffSize = read(socket, readBuff, SERVER_BUFF_SIZE);
@@ -643,7 +684,7 @@ void *clientHandle(void *clientArgs) {
 
     // merging memory
     if (leftOverSize > 0) {
-      char *mergingMem = malloc(leftOverSize + readBuffSize);
+      mergingMem = malloc(leftOverSize + readBuffSize);
       if (mergingMem == NULL) {
         close(socket);
         pthread_exit(NULL);
@@ -713,10 +754,14 @@ void *clientHandle(void *clientArgs) {
       nElementParsed++;
       if (leftOverSize > 0) {
         readBuff = tempReadBuff;
+        free(mergingMem);
+        mergingMem = NULL;
       }
       leftOverSize = 0;
       free(tempCo->val);
       tempCo->val = NULL;
+      free(tempCo->key);
+      tempCo->key = NULL;
     }
     if (nElementParsed < 5) {
       leftOverSize = readBuffSize-readSizePointer;
@@ -725,15 +770,7 @@ void *clientHandle(void *clientArgs) {
     }
     nElementParsed = 0;
   }
-  freeCacheObjectDefault(tempCo);
-  if (leftOverBuff != NULL) {
-    free(leftOverBuff);
-    leftOverBuff = NULL;
-  }
-  if (readBuff != NULL) {
-    free(readBuff);
-    readBuff = NULL;
-  }
+  pthread_cleanup_pop(0);
   return NULL;
 }
 
@@ -781,6 +818,7 @@ int listenDb(tempCache *cache, int port) {
     clientArgs->cache = (void*)cache;
 
     if(pthread_create(&cache->pthread, NULL, clientHandle, (void*)clientArgs) != 0 ) {
+      free(clientArgs);
       return errIO;
     }
   }

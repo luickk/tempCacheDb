@@ -62,6 +62,15 @@ struct clientReqReplyLinkVal {
   int updated;
 };
 
+struct cacheClientListenDbCleanUpToFree {
+  char *readBuff;
+  char *respBuff;
+  void *args;
+  char *mergingMem;
+  cacheObject *tempCo;
+  char *leftOverBuff;
+};
+
 enum errCodes {
   success,
   errNet,
@@ -108,6 +117,7 @@ void *cacheSurveillance(void *cacheP);
 
 /* cacheClient funcs */
 
+// thread
 void *cacheClientListenDb(void *argss);
 int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int port);
 int cacheClientPushCacheObject(tempCacheClient *cacheClient, cacheObject *cO);
