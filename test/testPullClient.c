@@ -55,10 +55,7 @@ int main() {
   printf("connected successfully \n");
 
   cacheObject *pulledCo;
-  err = initCacheObject(&pulledCo);
-  if (err != 0) {
-    return err;
-  }
+
   int i = 0;
   while (1) {
     err = cacheClientPullCacheObject(cacheClient, insert2->key, insert2->keySize, &pulledCo);
@@ -67,11 +64,9 @@ int main() {
       return 1;
     }
     i++;
-    pthread_mutex_lock(&cacheClient->clientReqReplyLink->cacheMutex);
-    // printf("(query up) %d \n", ((struct clientReqReplyLinkVal*)pulledCo->val)->updated);
-    printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, ((struct clientReqReplyLinkVal*)pulledCo->val)->valSize, (char*)((struct clientReqReplyLinkVal*)pulledCo->val)->val);
+    printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, pulledCo->valSize, (char*)pulledCo->val);
     // usleep(100000);
-    pthread_mutex_unlock(&cacheClient->clientReqReplyLink->cacheMutex);
+    freeCoFn(pulledCo);
   }
 
   return 0;

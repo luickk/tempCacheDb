@@ -1,6 +1,6 @@
 #include "include/tempCacheDb.h"
 
-// TODO go through mem frees/allocs throughout program flow
+// todo fix push malloc issue
 
 int initSimpleCache(simpleCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn) {
   *cache = malloc(sizeof(simpleCache));
@@ -48,16 +48,13 @@ int initTempCache(tempCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn
   return success;
 }
 
-int freeTempCache(tempCache **cache) {
-  for (int i = 0; i < (*cache)->localCache->nCacheSize; i++) {
-    (*cache)->localCache->freeCoFn((*cache)->localCache->keyValStore[i]);
-    (*cache)->localCache->keyValStore[i] = NULL;
-  }
+int freeTempCache(tempCache *cache) {
+  freeSimpleCache(&cache->localCache);
 
-  free(*cache);
-  (*cache) = NULL;
+  free(cache);
+  cache = NULL;
 
-  if(pthread_mutex_destroy(&(*cache)->localCache->cacheMutex) != 0) {
+  if(pthread_mutex_destroy(&cache->localCache->cacheMutex) != 0) {
     return errFree;
   }
 
@@ -75,6 +72,10 @@ int initCacheObject(cacheObject **cO) {
 }
 
 int getCacheObject(simpleCache *localCache, void *key, int keySize, cacheObject *resultingCo) {
+  assert(localCache);
+  if (key == NULL || keySize == 0) {
+    return errParam;
+  }
   pthread_mutex_lock(&localCache->cacheMutex);
   for (int i = 0; i < localCache->nCacheSize; i++) {
     if (localCache->keyValStore[i]->keySize == keySize) {
@@ -93,6 +94,10 @@ int getCacheObject(simpleCache *localCache, void *key, int keySize, cacheObject 
 }
 
 int getCacheObjectRef(simpleCache *localCache, void *key, int keySize, cacheObject ***resultingCo) {
+  assert(localCache);
+  if (key == NULL || keySize == 0) {
+    return errParam;
+  }
   pthread_mutex_lock(&localCache->cacheMutex);
   for (int i = 0; i < localCache->nCacheSize; i++) {
     if (localCache->keyValStore[i]->keySize == keySize) {
@@ -148,23 +153,30 @@ int cpyCacheObject(cacheObject **dest, cacheObject *src) {
 }
 
 int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRef) {
+  assert(sCache);
+  if (cO == NULL) {
+    return errParam;
+  }
   cacheObject **tempCoRef;
   cacheObject *toFreeCo;
   if (getCacheObjectRef(sCache, cO->key, cO->keySize, &tempCoRef)) {
     pthread_mutex_lock(&sCache->cacheMutex);
-    if (cO->val == NULL && cO->valSize == 0) {
-      sCache->freeCoFn(cO->val);
+    if (cO->val == NULL && cO->valSize == 0 && tempCoRef != NULL) {
+      sCache->freeCoFn(cO);
       (*tempCoRef)->val = NULL;
       (*tempCoRef)->valSize = 0;
       return success;
+    } else if (cO->val == NULL || cO->valSize == 0) {
+      sCache->freeCoFn(cO);
+      return errParam;
     }
-    if ((*tempCoRef)->val == NULL) {
+    if ((*tempCoRef)->val == NULL  && tempCoRef != NULL) {
       (*tempCoRef)->val = malloc(cO->valSize);
       if ((*tempCoRef)->val == NULL) {
         return errMalloc;
       }
       (*tempCoRef)->valSize = cO->valSize;
-    } else if (cO->valSize != (*tempCoRef)->valSize){
+    } else if (cO->valSize != (*tempCoRef)->valSize  && tempCoRef != NULL){
       (*tempCoRef)->val = realloc((*tempCoRef)->val, cO->valSize);
       if ((*tempCoRef)->val == NULL) {
         return errMalloc;
@@ -178,6 +190,9 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
     }
     pthread_mutex_unlock(&sCache->cacheMutex);
   } else {
+    if (cO->val == NULL || cO->valSize == 0) {
+      return errParam;
+    }
     pthread_mutex_lock(&sCache->cacheMutex);
     if (sCache->nCacheSize <= MAX_CACHE_SIZE) {
       if (sCache->nCacheSize == 0) {
@@ -214,6 +229,19 @@ void freeCacheObjectDefault(cacheObject *cO) {
     free(cO);
 }
 
+void clientReqReplyLinkFree(cacheObject *cO) {
+  if (cO->key != NULL)
+    free(cO->key);
+    cO->key = NULL;
+  if (cO->val != NULL)
+    if (((struct clientReqReplyLinkVal*)cO->val)->val != NULL)
+      free(((struct clientReqReplyLinkVal*)cO->val)->val);
+      ((struct clientReqReplyLinkVal*)cO->val)->val = NULL;
+    free(cO->val);
+  if (cO != NULL)
+    free(cO);
+}
+
 int clientReqReplyLinkKeyCmp(void *key1, void *key2, int size) {
 
   /* does not work with void pointers? returns always 0 */
@@ -238,7 +266,7 @@ int initCacheClient(tempCacheClient **cacheClient) {
     return errInit;
   }
 
-  int err = initSimpleCache(&(*cacheClient)->clientReqReplyLink, clientReqReplyLinkKeyCmp, freeCacheObjectDefault);
+  int err = initSimpleCache(&(*cacheClient)->clientReqReplyLink, clientReqReplyLinkKeyCmp, clientReqReplyLinkFree);
   if(err != 0) {
     return err;
   }
@@ -257,6 +285,9 @@ int freeCacheClient(tempCacheClient **cacheClient) {
 }
 
 void listenDbCleanUp(void *arg) {
+  if (arg == NULL) {
+    return;
+  }
   struct cacheClientListenDbCleanUpToFree *args = (struct cacheClientListenDbCleanUpToFree*) arg;
   if (args->readBuff != NULL) {
     free(args->readBuff);
@@ -280,6 +311,9 @@ void listenDbCleanUp(void *arg) {
 }
 
 void *cacheClientListenDb(void *arg) {
+  if (arg == NULL) {
+    return NULL;
+  }
   struct pthreadClientHandleArgs *args = (struct pthreadClientHandleArgs*) arg;
   tempCacheClient *cacheClient = args->cache;
   int socket = args->socket;
@@ -438,6 +472,10 @@ void *cacheClientListenDb(void *arg) {
 }
 
 int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int port) {
+  assert(cacheClient);
+  if (addressString == NULL) {
+    return errParam;
+  }
   pthread_mutex_lock(&cacheClient->cacheClientMutex);
   cacheClient->sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (cacheClient->sockfd == -1) {
@@ -471,10 +509,14 @@ int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int po
 }
 
 int cacheClientPushCacheObject(tempCacheClient *cacheClient, cacheObject *cO) {
+  assert(cacheClient);
+  if (cO == NULL) {
+    return errParam;
+  }
   int keySizeSize = sizeof(cO->keySize);
   int sendBuffSize = sizeof(uint8_t) + keySizeSize + cO->keySize + keySizeSize + cO->valSize;
-  char *sendBuff = malloc(sizeof(char) * sendBuffSize);
   int netByteOrderSize = 0;
+  char *sendBuff = malloc(sizeof(char) * sendBuffSize);
   if (sendBuff == NULL) {
     return errMalloc;
   }
@@ -505,10 +547,16 @@ int cacheClientPushCacheObject(tempCacheClient *cacheClient, cacheObject *cO) {
 }
 
 int cacheReplyToPull(int sockfd, cacheObject *cO) {
+  if (sockfd < 0) {
+    return errNet;
+  }
+  if (cO == NULL) {
+    return errParam;
+  }
   int keySizeSize = sizeof(cO->keySize);
   int sendBuffSize = sizeof(uint8_t) + keySizeSize + cO->keySize + keySizeSize + cO->valSize;
-  char *sendBuff = malloc(sizeof(char) * sendBuffSize);
   int netByteOrderSize = 0;
+  char *sendBuff = malloc(sizeof(char) * sendBuffSize);
   if (sendBuff == NULL) {
     return errMalloc;
   }
@@ -538,12 +586,17 @@ int cacheReplyToPull(int sockfd, cacheObject *cO) {
   return success;
 }
 
+// make params same as local pull
 int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keySize, cacheObject **pulledCo) {
+  assert(cacheClient);
+  if (key == NULL || keySize == 0) {
+    return errParam;
+  }
   int keySizeSize = sizeof((*pulledCo)->keySize);
   int sendBuffSize = sizeof(uint8_t) + keySizeSize + keySize + keySizeSize;
   int netByteOrderSize = 0;
-  char *sendBuff = malloc(sizeof(char) * sendBuffSize);
   cacheObject **cacheRef;
+  char *sendBuff = malloc(sizeof(char) * sendBuffSize);
   if (sendBuff == NULL) {
     return errMalloc;
   }
@@ -582,7 +635,6 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
   clientReqReply->valSize = sizeof(struct clientReqReplyLinkVal);
   ((struct clientReqReplyLinkVal*) clientReqReply->val)->updated = 0;
 
-  // TODO optimize pushCacheObject not to reallocated whole clientReqReplyLinkVal struct everytime
   err = pushCacheObject(cacheClient->clientReqReplyLink, clientReqReply, &cacheRef);
   if (err != 0) {
     return errIO;
@@ -599,8 +651,27 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
 
   while(cacheRefVal->updated == 0) {}
 
-  // TODO copy cO and remove clientReqReplyLinkVal struct from val
-  *pulledCo = (*cacheRef);
+  err = initCacheObject(pulledCo);
+  if (err != 0) {
+    return err;
+  }
+  (*pulledCo)->keySize = (*cacheRef)->keySize;
+  if ((*cacheRef)->key != NULL) {
+    (*pulledCo)->key = malloc((*cacheRef)->keySize);
+    if ((*pulledCo)->key == NULL) {
+      return errMalloc;
+    }
+    memcpy((*pulledCo)->key, (*cacheRef)->key, (*cacheRef)->keySize);
+  }
+
+  if ((*cacheRef)->val != NULL && ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->val != NULL) {
+    (*pulledCo)->valSize = ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->valSize;
+    (*pulledCo)->val = malloc(((struct clientReqReplyLinkVal*)(*cacheRef)->val)->valSize);
+    if ((*pulledCo)->val == NULL) {
+      return errMalloc;
+    }
+    memcpy((*pulledCo)->val, ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->val, ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->valSize);
+  }
 
   pthread_mutex_unlock(&cacheClient->clientReqReplyLink->cacheMutex);
 
@@ -610,6 +681,9 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
 }
 
 void *cacheSurveillance(void *cacheP) {
+  if (cacheP == NULL) {
+    return NULL;
+  }
   tempCache *cache = (tempCache*)cacheP;
   while (1) {
     pthread_mutex_lock(&cache->localCache->cacheMutex);
@@ -628,6 +702,9 @@ void *cacheSurveillance(void *cacheP) {
 }
 
 void *clientHandle(void *clientArgs) {
+  if (clientArgs == NULL) {
+    return NULL;
+  }
   struct pthreadClientHandleArgs *args = (struct pthreadClientHandleArgs*)clientArgs;
   tempCache *cache = args->cache;
   int socket = args->socket;
@@ -775,6 +852,7 @@ void *clientHandle(void *clientArgs) {
 }
 
 int listenDb(tempCache *cache, int port) {
+  assert(cache);
   int tmpSocket;
   socklen_t addrSize;
   struct sockaddr_in tempClient;
@@ -795,10 +873,10 @@ int listenDb(tempCache *cache, int port) {
   if (listen(cache->serverSocket, 1) != 0) {
     return errNet;
   }
-  pthread_t survPthread;
-  if(pthread_create(&survPthread, NULL, cacheSurveillance, (void*)cache) != 0 ) {
-    return errIO;
-  }
+  // pthread_t survPthread;
+  // if(pthread_create(&survPthread, NULL, cacheSurveillance, (void*)cache) != 0 ) {
+  //   return errIO;
+  // }
 
   // for (int n = 0; n <= 5; n++) {
   while (1) {

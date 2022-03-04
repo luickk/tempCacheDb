@@ -73,6 +73,7 @@ struct cacheClientListenDbCleanUpToFree {
 
 enum errCodes {
   success,
+  errParam,
   errNet,
   errIO,
   errMalloc,
@@ -88,7 +89,7 @@ int initSimpleCache(simpleCache **cache, keyCompare keyCmp, freeCacheObject free
 int freeSimpleCache(simpleCache **cache);
 // tempCache has an extended feature set and supports remote push/ pull operations (build on simpleCache)
 int initTempCache(tempCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn);
-int freeTempCache(tempCache **cache);
+int freeTempCache(tempCache *cache);
 // initializes only the cacheObject struct, not its values!
 int initCacheObject(cacheObject **cO);
 // !assumes that ALL pointers are freeable!
@@ -121,6 +122,7 @@ void *cacheSurveillance(void *cacheP);
 void *cacheClientListenDb(void *argss);
 int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int port);
 int cacheClientPushCacheObject(tempCacheClient *cacheClient, cacheObject *cO);
+// pulledCo has to be freed!
 int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keySize, cacheObject **pulledCo);
 
 /* private lib functions */
@@ -132,5 +134,6 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
 int getCacheObjectRef(simpleCache *localCache, void *key, int keySize, cacheObject ***resultingCo);
 int clientReqReplyLinkKeyCmp(void *key1, void *key2, int size);
 int cacheReplyToPull(int sockfd, cacheObject *cO);
+void clientReqReplyLinkFree(cacheObject *cO);
 //thread
 void *clientHandle(void *clientArgs);
