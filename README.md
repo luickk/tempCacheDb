@@ -2,9 +2,11 @@
 
 Key/Val database with focus on temporary ultra fast data storage. Originally the project was intended to be a header only library, I dropped the idea after breaching a certain complexity and after I came up with plans to extend the project.
 
-The idea is to provide a simple db which is able to store and manage key/val data at minimum latency in a temporary manner. Since the db is only meant for temporary data storage it's stored in memory (the heap).
+The idea is to provide a simple db which is able to store and manage key/val data at minimum latency in a temporary manner. Since the db is only meant for temporary data storage it's stored in memory (heap).
 
 This type of db is suited for all kinds of data distribution in a local network or wireless type manner if latency and flexibility matters.
+
+Up to now there is still room for massive improvements in memory efficiency and speed.
 
 ## Features
 
@@ -88,7 +90,7 @@ if(getCacheObject(cache1->localCache, queryCo->key, queryCo->keySize, queryCo)) 
 }
 ```
 
-To push cacheObject to the cache use `pushCacheObject`. The pushedCo must not be reused after the push operation since it is freed in the process.
+To push cacheObject to the cache use `pushCacheObject`. pushedCo is not freed.
 The third argument returns the pointer to the actual pointer of the (new) cacheObject in the keyValStore of the cacheDB.
 
 ```C
@@ -139,6 +141,11 @@ if (err != 0) {
 (additional details can be found in the header)
 
 ## Details
+
+### Capacity
+
+The size of the cacheDB can be defined in the header (`MAX_CACHE_SIZE`). If the max cache size is reached no new keys can be added to the db but existing key/vals can still be manipulated.
+
 ### Memory management
 
 To ensure a predictable memory behaviour and prevent potential leaks the code has been analyzed with multiple static analyzing tools and tested/ surveilled in a multitude of scenarios. Threads ensure memory release by utilizing the pthread cleanup feature.

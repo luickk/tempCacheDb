@@ -47,7 +47,7 @@ int main() {
     return 1;
   }
 
-  err = cacheClientConnect(cacheClient, "127.0.0.1", 8080);
+  err = cacheClientConnect(cacheClient, "192.168.64.2", 8080);
   if (err != 0) {
     printf("cClientConnect err code %d \n", err);
     return 1;

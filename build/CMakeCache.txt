@@ -222,6 +222,9 @@ tempCacheDb_BINARY_DIR:STATIC=/Users/luickklippel/Documents/Projekte/tempCacheDb
 //Value Computed by CMake
 tempCacheDb_IS_TOP_LEVEL:STATIC=ON
 
+//Dependencies for the target
+tempCacheDb_LIB_DEPENDS:STATIC=general;-lpthread;
+
 //Value Computed by CMake
 tempCacheDb_SOURCE_DIR:STATIC=/Users/luickklippel/Documents/Projekte/tempCacheDb
 

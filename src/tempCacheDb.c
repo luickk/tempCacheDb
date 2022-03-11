@@ -136,7 +136,7 @@ int cpyCacheObject(cacheObject **dest, cacheObject *src) {
       }
 
       (*dest)->valSize = src->valSize;
-      memcpy((*dest)->val, src->val, (*dest)->valSize);
+      memcpy((*dest)->val, src->val, src->valSize);
     }
     if (src->key != NULL) {
       (*dest)->key = malloc(src->keySize);
@@ -145,7 +145,7 @@ int cpyCacheObject(cacheObject **dest, cacheObject *src) {
       }
 
       (*dest)->keySize = src->keySize;
-      memcpy((*dest)->key, src->key, (*dest)->keySize);
+      memcpy((*dest)->key, src->key, src->keySize);
     }
   }
 
@@ -158,16 +158,13 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
     return errParam;
   }
   cacheObject **tempCoRef;
-  cacheObject *toFreeCo;
   if (getCacheObjectRef(sCache, cO->key, cO->keySize, &tempCoRef)) {
     pthread_mutex_lock(&sCache->cacheMutex);
     if (cO->val == NULL && cO->valSize == 0 && tempCoRef != NULL) {
-      sCache->freeCoFn(cO);
       (*tempCoRef)->val = NULL;
       (*tempCoRef)->valSize = 0;
       return success;
     } else if (cO->val == NULL || cO->valSize == 0) {
-      sCache->freeCoFn(cO);
       return errParam;
     }
     if ((*tempCoRef)->val == NULL  && tempCoRef != NULL) {
@@ -184,7 +181,6 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
       (*tempCoRef)->valSize = cO->valSize;
     }
     memcpy((*tempCoRef)->val, cO->val, (*tempCoRef)->valSize);
-    sCache->freeCoFn(cO);
     if (newCoRef != NULL) {
       *newCoRef = tempCoRef;
     }
@@ -207,7 +203,6 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
         }
       }
       cpyCacheObject(&sCache->keyValStore[sCache->nCacheSize], cO);
-      sCache->freeCoFn(cO);
       if (newCoRef != NULL) {
         *newCoRef = &sCache->keyValStore[sCache->nCacheSize];
       }
@@ -463,8 +458,9 @@ void *cacheClientListenDb(void *arg) {
         leftOverSize = readBuffSize-readSizePointer;
         leftOverBuff = malloc(leftOverSize*sizeof(char));
         memcpy(leftOverBuff, readBuff+readSizePointer, leftOverSize);
+      } else {
+        nElementParsed = 0;
       }
-      nElementParsed = 0;
     }
   }
   pthread_cleanup_pop(0);
@@ -639,6 +635,7 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
   if (err != 0) {
     return errIO;
   }
+  freeCacheObjectDefault(clientReqReply);
   struct clientReqReplyLinkVal *volatile cacheRefVal = (struct clientReqReplyLinkVal*)(*cacheRef)->val;
 
   pthread_mutex_lock(&cacheClient->cacheClientMutex);
@@ -733,7 +730,6 @@ void *clientHandle(void *clientArgs) {
   int leftOverSize = 0;
   char *leftOverBuff;
   char *tempReadBuff;
-  cacheObject *copiedCo;
   char *mergingMem;
 
   // pull = 1, push = 2, pullReply = 3
@@ -767,8 +763,8 @@ void *clientHandle(void *clientArgs) {
         pthread_exit(NULL);
       }
       memcpy(mergingMem, leftOverBuff, leftOverSize);
-      free(leftOverBuff);
-      leftOverBuff = NULL;
+      // free(leftOverBuff);
+      // leftOverBuff = NULL;
       memcpy(mergingMem+leftOverSize, readBuff, readBuffSize);
       tempReadBuff = readBuff;
       readBuffSize += leftOverSize;
@@ -783,7 +779,12 @@ void *clientHandle(void *clientArgs) {
     }
 
     if ((readBuffSize-readSizePointer) >= keySizeSize && nElementParsed == 1) {
-      memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
+      if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+        memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
+      } else {
+        close(socket);
+        pthread_exit(NULL);
+      }
       readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
       nElementParsed++;
@@ -796,13 +797,23 @@ void *clientHandle(void *clientArgs) {
         close(socket);
         pthread_exit(NULL);
       }
-      memcpy(tempCo->key, readBuff+readSizePointer, tempProtocolSize);
+      if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+        memcpy(tempCo->key, readBuff+readSizePointer, tempProtocolSize);
+      } else {
+        close(socket);
+        pthread_exit(NULL);
+      }
       readSizePointer += tempProtocolSize;
       nElementParsed++;
     }
 
     if ((readBuffSize-readSizePointer) >= keySizeSize && nElementParsed == 3) {
-      memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
+      if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+        memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
+      } else {
+        close(socket);
+        pthread_exit(NULL);
+      }
       readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
       nElementParsed++;
@@ -816,19 +827,32 @@ void *clientHandle(void *clientArgs) {
           close(socket);
           pthread_exit(NULL);
         }
-        memcpy(tempCo->val, readBuff+readSizePointer, tempProtocolSize);
-
-        copiedCo = NULL;
-        if (cpyCacheObject(&copiedCo, tempCo) != 0) {
+        if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+          memcpy(tempCo->val, readBuff+readSizePointer, tempProtocolSize);
+        } else {
           close(socket);
           pthread_exit(NULL);
         }
-        pushCacheObject(cache->localCache, copiedCo, NULL);
+        // printf("(pushed) k: %.*s v: %.*s \n", copiedCo->keySize, (char*)copiedCo->key, copiedCo->valSize, (char*)copiedCo->val);
+        pushCacheObject(cache->localCache, tempCo, NULL);
       } else if (opCode == 1) {
         getCacheObject(cache->localCache, tempCo->key, tempCo->keySize, tempCo);
         cacheReplyToPull(socket, tempCo);
       }
       nElementParsed++;
+    }
+
+    if (nElementParsed < 5) {
+      leftOverSize = readBuffSize-readSizePointer;
+      leftOverBuff = malloc(leftOverSize*sizeof(char));
+      if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+        memcpy(leftOverBuff, readBuff+readSizePointer, leftOverSize);
+      } else {
+        close(socket);
+        pthread_exit(NULL);
+      }
+    } else {
+      nElementParsed = 0;
       if (leftOverSize > 0) {
         readBuff = tempReadBuff;
         free(mergingMem);
@@ -840,12 +864,6 @@ void *clientHandle(void *clientArgs) {
       free(tempCo->key);
       tempCo->key = NULL;
     }
-    if (nElementParsed < 5) {
-      leftOverSize = readBuffSize-readSizePointer;
-      leftOverBuff = malloc(leftOverSize*sizeof(char));
-      memcpy(leftOverBuff, readBuff+readSizePointer, leftOverSize);
-    }
-    nElementParsed = 0;
   }
   pthread_cleanup_pop(0);
   return NULL;
@@ -873,10 +891,10 @@ int listenDb(tempCache *cache, int port) {
   if (listen(cache->serverSocket, 1) != 0) {
     return errNet;
   }
-  // pthread_t survPthread;
-  // if(pthread_create(&survPthread, NULL, cacheSurveillance, (void*)cache) != 0 ) {
-  //   return errIO;
-  // }
+  pthread_t survPthread;
+  if(pthread_create(&survPthread, NULL, cacheSurveillance, (void*)cache) != 0 ) {
+    return errIO;
+  }
 
   // for (int n = 0; n <= 5; n++) {
   while (1) {

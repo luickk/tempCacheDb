@@ -107,8 +107,6 @@ int listenDb(tempCache *cache, int port);
 // !resultingCo must not contain pointer to possibly allocated memory to prevent potential memory leak!
 int getCacheObject(simpleCache *localCache, void *key, int keySize, cacheObject *resultingCo);
 // CashObject must be properly allocated!
-// Don't reuse pushed cache Object. The memory is now manged by the cache
-// and could be freed or moved at any point in time
 // newCoRef returns the address ref to the cacheObject whichs value has been overwritten by the pushed cO
 int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRef);
 int cpyCacheObject(cacheObject **dest, cacheObject *src);
