@@ -202,7 +202,31 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
           return errMalloc;
         }
       }
-      cpyCacheObject(&sCache->keyValStore[sCache->nCacheSize], cO);
+      // cpyCacheObject(&sCache->keyValStore[sCache->nCacheSize], cO);
+      cacheObject *toPush;
+      int err = initCacheObject(&toPush);
+      if (err != 0) {
+        return err;
+      }
+
+      toPush->val = malloc(cO->valSize);
+      if(toPush->val==NULL) {
+        return errMalloc;
+      }
+
+      toPush->valSize = cO->valSize;
+      memcpy(toPush->val, cO->val, cO->valSize);
+
+      toPush->key = malloc(cO->keySize);
+      if(toPush->key==NULL) {
+        return errMalloc;
+      }
+
+      toPush->keySize = cO->keySize;
+      memcpy(toPush->key, cO->key, cO->keySize);
+
+      sCache->keyValStore[sCache->nCacheSize] = toPush;
+
       if (newCoRef != NULL) {
         *newCoRef = &sCache->keyValStore[sCache->nCacheSize];
       }
