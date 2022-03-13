@@ -14,7 +14,7 @@
 
 #define MAX_CACHE_SIZE 1000000
 
-#define CACHEDB_SIZE_INCREASE 10000
+#define CACHEDB_SIZE_INCREASE 1000
 
 typedef struct {
   void *key;

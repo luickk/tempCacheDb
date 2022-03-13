@@ -192,12 +192,12 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
     pthread_mutex_lock(&sCache->cacheMutex);
     if (sCache->nCacheSize <= MAX_CACHE_SIZE) {
       if (sCache->nCacheSize == 0) {
-        sCache->keyValStore = malloc(sizeof(cacheObject*));
+        sCache->keyValStore = malloc(sizeof(cacheObject*)*CACHEDB_SIZE_INCREASE);
         if (sCache->keyValStore == NULL) {
           return errMalloc;
         }
       } else if (sCache->nCacheSize % CACHEDB_SIZE_INCREASE == 0) {
-        sCache->keyValStore = realloc(sCache->keyValStore, sizeof(cacheObject*)*(sCache->nCacheSize+1)*CACHEDB_SIZE_INCREASE);
+        sCache->keyValStore = realloc(sCache->keyValStore, ((sCache->nCacheSize+1)*sizeof(cacheObject*))+(sizeof(cacheObject*)*CACHEDB_SIZE_INCREASE));
         if (sCache->keyValStore == NULL) {
           return errMalloc;
         }
