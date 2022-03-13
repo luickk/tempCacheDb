@@ -196,8 +196,8 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
         if (sCache->keyValStore == NULL) {
           return errMalloc;
         }
-      } else {
-        sCache->keyValStore = realloc(sCache->keyValStore, sizeof(cacheObject*)*(sCache->nCacheSize+1));
+      } else if (sCache->nCacheSize % CACHEDB_SIZE_INCREASE == 0) {
+        sCache->keyValStore = realloc(sCache->keyValStore, sizeof(cacheObject*)*(sCache->nCacheSize+1)*CACHEDB_SIZE_INCREASE);
         if (sCache->keyValStore == NULL) {
           return errMalloc;
         }
@@ -787,8 +787,8 @@ void *clientHandle(void *clientArgs) {
         pthread_exit(NULL);
       }
       memcpy(mergingMem, leftOverBuff, leftOverSize);
-      // free(leftOverBuff);
-      // leftOverBuff = NULL;
+      free(leftOverBuff);
+      leftOverBuff = NULL;
       memcpy(mergingMem+leftOverSize, readBuff, readBuffSize);
       tempReadBuff = readBuff;
       readBuffSize += leftOverSize;
