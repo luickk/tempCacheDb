@@ -6,5 +6,5 @@ C_DEFINES =
 
 C_INCLUDES = -I/Users/luickklippel/Documents/Projekte/tempCacheDb/src/include
 
-C_FLAGS =  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk
+C_FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk
 

@@ -1,1 +1,1 @@
-/Library/Developer/CommandLineTools/usr/bin/cc  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/localTest.dir/localTest.c.o -o localTest  ../libtempCacheDb.a -lpthread 
+/Library/Developer/CommandLineTools/usr/bin/cc -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/localTest.dir/localTest.c.o -o localTest  ../libtempCacheDb.a -lpthread 

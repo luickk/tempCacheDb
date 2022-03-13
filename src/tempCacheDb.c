@@ -821,7 +821,7 @@ void *clientHandle(void *clientArgs) {
         close(socket);
         pthread_exit(NULL);
       }
-      if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+      if (readSizePointer <= SERVER_BUFF_SIZE) {
         memcpy(tempCo->key, readBuff+readSizePointer, tempProtocolSize);
       } else {
         close(socket);
@@ -851,7 +851,7 @@ void *clientHandle(void *clientArgs) {
           close(socket);
           pthread_exit(NULL);
         }
-        if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+        if (readSizePointer <= SERVER_BUFF_SIZE) {
           memcpy(tempCo->val, readBuff+readSizePointer, tempProtocolSize);
         } else {
           close(socket);
@@ -868,19 +868,20 @@ void *clientHandle(void *clientArgs) {
 
     if (nElementParsed < 5) {
       leftOverSize = readBuffSize-readSizePointer;
-      leftOverBuff = malloc(leftOverSize*sizeof(char));
-      if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+      leftOverBuff = malloc(leftOverSize);
+      if (readSizePointer <= SERVER_BUFF_SIZE) {
         memcpy(leftOverBuff, readBuff+readSizePointer, leftOverSize);
       } else {
         close(socket);
         pthread_exit(NULL);
       }
-    } else {
+    } else if (nElementParsed == 5){
       nElementParsed = 0;
       if (leftOverSize > 0) {
         readBuff = tempReadBuff;
         free(mergingMem);
         mergingMem = NULL;
+        tempReadBuff = NULL;
       }
       leftOverSize = 0;
       free(tempCo->val);
