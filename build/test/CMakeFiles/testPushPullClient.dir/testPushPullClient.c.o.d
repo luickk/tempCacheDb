@@ -1,5 +1,5 @@
 test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.o: \
-  /Users/luickklippel/Documents/Projekte/tempCacheDb/test/testPushPullClient.c \
+  /Users/luickklippel/Documents/Projekte/tempcachedb/test/testPushPullClient.c \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/_stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/sys/cdefs.h \
@@ -73,7 +73,7 @@ test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/malloc/_malloc.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/sys/_types/_dev_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/sys/_types/_mode_t.h \
-  /Users/luickklippel/Documents/Projekte/tempCacheDb/src/include/tempCacheDb.h \
+  /Users/luickklippel/Documents/Projekte/tempcachedb/src/include/tempCacheDb.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/netdb.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/sys/_types/_socklen_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/netinet/in.h \

@@ -68,7 +68,7 @@ struct cacheClientListenDbCleanUpToFree {
   char *readBuff;
   char *respBuff;
   void *args;
-  char *mergingMem;
+  char *mergingBuff;
   cacheObject *tempCo;
   char *leftOverBuff;
 };

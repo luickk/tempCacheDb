@@ -8,12 +8,12 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/luickklippel/Documents/Projekte/tempCacheDb/test/testServerAndLocal.c" "test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o" "gcc" "test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o.d"
+  "/Users/luickklippel/Documents/Projekte/tempcachedb/test/testServerAndLocal.c" "test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o" "gcc" "test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o.d"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles/tempCacheDb.dir/DependInfo.cmake"
+  "/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles/tempCacheDb.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

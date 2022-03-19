@@ -54,10 +54,10 @@ RM = /usr/local/Cellar/cmake/3.21.3_1/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/luickklippel/Documents/Projekte/tempCacheDb
+CMAKE_SOURCE_DIR = /Users/luickklippel/Documents/Projekte/tempcachedb
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/luickklippel/Documents/Projekte/tempCacheDb/build
+CMAKE_BINARY_DIR = /Users/luickklippel/Documents/Projekte/tempcachedb/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -108,14 +108,14 @@ test/clean: test/CMakeFiles/testPushClient.dir/clean
 CMakeFiles/tempCacheDb.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tempCacheDb.dir/build.make CMakeFiles/tempCacheDb.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tempCacheDb.dir/build.make CMakeFiles/tempCacheDb.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=3,4 "Built target tempCacheDb"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=3,4 "Built target tempCacheDb"
 .PHONY : CMakeFiles/tempCacheDb.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/tempCacheDb.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/tempCacheDb.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 0
 .PHONY : CMakeFiles/tempCacheDb.dir/rule
 
 # Convenience name for target.
@@ -134,14 +134,14 @@ CMakeFiles/tempCacheDb.dir/clean:
 test/CMakeFiles/testPushPullClient.dir/all: CMakeFiles/tempCacheDb.dir/all
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=9,10 "Built target testPushPullClient"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=9,10 "Built target testPushPullClient"
 .PHONY : test/CMakeFiles/testPushPullClient.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/testPushPullClient.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPushPullClient.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/testPushPullClient.dir/rule
 
 # Convenience name for target.
@@ -160,14 +160,14 @@ test/CMakeFiles/testPushPullClient.dir/clean:
 test/CMakeFiles/testPullClient.dir/all: CMakeFiles/tempCacheDb.dir/all
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=5,6 "Built target testPullClient"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=5,6 "Built target testPullClient"
 .PHONY : test/CMakeFiles/testPullClient.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/testPullClient.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPullClient.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/testPullClient.dir/rule
 
 # Convenience name for target.
@@ -186,14 +186,14 @@ test/CMakeFiles/testPullClient.dir/clean:
 test/CMakeFiles/localTest.dir/all: CMakeFiles/tempCacheDb.dir/all
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=1,2 "Built target localTest"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=1,2 "Built target localTest"
 .PHONY : test/CMakeFiles/localTest.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/localTest.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/localTest.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/localTest.dir/rule
 
 # Convenience name for target.
@@ -212,14 +212,14 @@ test/CMakeFiles/localTest.dir/clean:
 test/CMakeFiles/testServer.dir/all: CMakeFiles/tempCacheDb.dir/all
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=11,12 "Built target testServer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=11,12 "Built target testServer"
 .PHONY : test/CMakeFiles/testServer.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/testServer.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testServer.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/testServer.dir/rule
 
 # Convenience name for target.
@@ -238,14 +238,14 @@ test/CMakeFiles/testServer.dir/clean:
 test/CMakeFiles/testServerAndLocal.dir/all: CMakeFiles/tempCacheDb.dir/all
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=13,14 "Built target testServerAndLocal"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=13,14 "Built target testServerAndLocal"
 .PHONY : test/CMakeFiles/testServerAndLocal.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/testServerAndLocal.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testServerAndLocal.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/testServerAndLocal.dir/rule
 
 # Convenience name for target.
@@ -264,14 +264,14 @@ test/CMakeFiles/testServerAndLocal.dir/clean:
 test/CMakeFiles/testPushClient.dir/all: CMakeFiles/tempCacheDb.dir/all
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/depend
 	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=7,8 "Built target testPushClient"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=7,8 "Built target testPushClient"
 .PHONY : test/CMakeFiles/testPushClient.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/testPushClient.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPushClient.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/testPushClient.dir/rule
 
 # Convenience name for target.

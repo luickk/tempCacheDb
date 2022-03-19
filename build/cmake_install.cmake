@@ -1,4 +1,4 @@
-# Install script for directory: /Users/luickklippel/Documents/Projekte/tempCacheDb
+# Install script for directory: /Users/luickklippel/Documents/Projekte/tempcachedb
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/cmake_install.cmake")
+  include("/Users/luickklippel/Documents/Projekte/tempcachedb/build/test/cmake_install.cmake")
 
 endif()
 
@@ -51,5 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/luickklippel/Documents/Projekte/tempCacheDb/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/luickklippel/Documents/Projekte/tempcachedb/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -4,7 +4,7 @@
 # compile C with /Library/Developer/CommandLineTools/usr/bin/cc
 C_DEFINES = 
 
-C_INCLUDES = -I/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test -I/Users/luickklippel/Documents/Projekte/tempCacheDb/test/tempCacheDb -I/Users/luickklippel/Documents/Projekte/tempCacheDb/src/include
+C_INCLUDES = -I/Users/luickklippel/Documents/Projekte/tempcachedb/build/test -I/Users/luickklippel/Documents/Projekte/tempcachedb/test/tempCacheDb -I/Users/luickklippel/Documents/Projekte/tempcachedb/src/include
 
 C_FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk
 

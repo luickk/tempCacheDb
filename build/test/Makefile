@@ -57,10 +57,10 @@ RM = /usr/local/Cellar/cmake/3.21.3_1/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/luickklippel/Documents/Projekte/tempCacheDb
+CMAKE_SOURCE_DIR = /Users/luickklippel/Documents/Projekte/tempcachedb
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/luickklippel/Documents/Projekte/tempCacheDb/build
+CMAKE_BINARY_DIR = /Users/luickklippel/Documents/Projekte/tempcachedb/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,14 +87,14 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test//CMakeFiles/progress.marks
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles 0
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles /Users/luickklippel/Documents/Projekte/tempcachedb/build/test//CMakeFiles/progress.marks
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/clean
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/clean
 .PHONY : clean
 
 # The main clean target
@@ -103,22 +103,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/preinstall
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/preinstall
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 test/CMakeFiles/testPushPullClient.dir/rule:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPushPullClient.dir/rule
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPushPullClient.dir/rule
 .PHONY : test/CMakeFiles/testPushPullClient.dir/rule
 
 # Convenience name for target.
@@ -127,12 +127,12 @@ testPushPullClient: test/CMakeFiles/testPushPullClient.dir/rule
 
 # fast build rule for target.
 testPushPullClient/fast:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/build
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/build
 .PHONY : testPushPullClient/fast
 
 # Convenience name for target.
 test/CMakeFiles/testPullClient.dir/rule:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPullClient.dir/rule
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPullClient.dir/rule
 .PHONY : test/CMakeFiles/testPullClient.dir/rule
 
 # Convenience name for target.
@@ -141,12 +141,12 @@ testPullClient: test/CMakeFiles/testPullClient.dir/rule
 
 # fast build rule for target.
 testPullClient/fast:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/build
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/build
 .PHONY : testPullClient/fast
 
 # Convenience name for target.
 test/CMakeFiles/localTest.dir/rule:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/localTest.dir/rule
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/localTest.dir/rule
 .PHONY : test/CMakeFiles/localTest.dir/rule
 
 # Convenience name for target.
@@ -155,12 +155,12 @@ localTest: test/CMakeFiles/localTest.dir/rule
 
 # fast build rule for target.
 localTest/fast:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/build
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/build
 .PHONY : localTest/fast
 
 # Convenience name for target.
 test/CMakeFiles/testServer.dir/rule:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testServer.dir/rule
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testServer.dir/rule
 .PHONY : test/CMakeFiles/testServer.dir/rule
 
 # Convenience name for target.
@@ -169,12 +169,12 @@ testServer: test/CMakeFiles/testServer.dir/rule
 
 # fast build rule for target.
 testServer/fast:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/build
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/build
 .PHONY : testServer/fast
 
 # Convenience name for target.
 test/CMakeFiles/testServerAndLocal.dir/rule:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testServerAndLocal.dir/rule
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testServerAndLocal.dir/rule
 .PHONY : test/CMakeFiles/testServerAndLocal.dir/rule
 
 # Convenience name for target.
@@ -183,12 +183,12 @@ testServerAndLocal: test/CMakeFiles/testServerAndLocal.dir/rule
 
 # fast build rule for target.
 testServerAndLocal/fast:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/build
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/build
 .PHONY : testServerAndLocal/fast
 
 # Convenience name for target.
 test/CMakeFiles/testPushClient.dir/rule:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPushClient.dir/rule
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/testPushClient.dir/rule
 .PHONY : test/CMakeFiles/testPushClient.dir/rule
 
 # Convenience name for target.
@@ -197,7 +197,7 @@ testPushClient: test/CMakeFiles/testPushClient.dir/rule
 
 # fast build rule for target.
 testPushClient/fast:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/build
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/build
 .PHONY : testPushClient/fast
 
 localTest.o: localTest.c.o
@@ -205,7 +205,7 @@ localTest.o: localTest.c.o
 
 # target to build an object file
 localTest.c.o:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/localTest.c.o
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/localTest.c.o
 .PHONY : localTest.c.o
 
 localTest.i: localTest.c.i
@@ -213,7 +213,7 @@ localTest.i: localTest.c.i
 
 # target to preprocess a source file
 localTest.c.i:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/localTest.c.i
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/localTest.c.i
 .PHONY : localTest.c.i
 
 localTest.s: localTest.c.s
@@ -221,7 +221,7 @@ localTest.s: localTest.c.s
 
 # target to generate assembly for a file
 localTest.c.s:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/localTest.c.s
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/localTest.dir/build.make test/CMakeFiles/localTest.dir/localTest.c.s
 .PHONY : localTest.c.s
 
 testPullClient.o: testPullClient.c.o
@@ -229,7 +229,7 @@ testPullClient.o: testPullClient.c.o
 
 # target to build an object file
 testPullClient.c.o:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/testPullClient.c.o
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/testPullClient.c.o
 .PHONY : testPullClient.c.o
 
 testPullClient.i: testPullClient.c.i
@@ -237,7 +237,7 @@ testPullClient.i: testPullClient.c.i
 
 # target to preprocess a source file
 testPullClient.c.i:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/testPullClient.c.i
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/testPullClient.c.i
 .PHONY : testPullClient.c.i
 
 testPullClient.s: testPullClient.c.s
@@ -245,7 +245,7 @@ testPullClient.s: testPullClient.c.s
 
 # target to generate assembly for a file
 testPullClient.c.s:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/testPullClient.c.s
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPullClient.dir/build.make test/CMakeFiles/testPullClient.dir/testPullClient.c.s
 .PHONY : testPullClient.c.s
 
 testPushClient.o: testPushClient.c.o
@@ -253,7 +253,7 @@ testPushClient.o: testPushClient.c.o
 
 # target to build an object file
 testPushClient.c.o:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/testPushClient.c.o
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/testPushClient.c.o
 .PHONY : testPushClient.c.o
 
 testPushClient.i: testPushClient.c.i
@@ -261,7 +261,7 @@ testPushClient.i: testPushClient.c.i
 
 # target to preprocess a source file
 testPushClient.c.i:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/testPushClient.c.i
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/testPushClient.c.i
 .PHONY : testPushClient.c.i
 
 testPushClient.s: testPushClient.c.s
@@ -269,7 +269,7 @@ testPushClient.s: testPushClient.c.s
 
 # target to generate assembly for a file
 testPushClient.c.s:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/testPushClient.c.s
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushClient.dir/build.make test/CMakeFiles/testPushClient.dir/testPushClient.c.s
 .PHONY : testPushClient.c.s
 
 testPushPullClient.o: testPushPullClient.c.o
@@ -277,7 +277,7 @@ testPushPullClient.o: testPushPullClient.c.o
 
 # target to build an object file
 testPushPullClient.c.o:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.o
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.o
 .PHONY : testPushPullClient.c.o
 
 testPushPullClient.i: testPushPullClient.c.i
@@ -285,7 +285,7 @@ testPushPullClient.i: testPushPullClient.c.i
 
 # target to preprocess a source file
 testPushPullClient.c.i:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.i
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.i
 .PHONY : testPushPullClient.c.i
 
 testPushPullClient.s: testPushPullClient.c.s
@@ -293,7 +293,7 @@ testPushPullClient.s: testPushPullClient.c.s
 
 # target to generate assembly for a file
 testPushPullClient.c.s:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.s
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testPushPullClient.dir/build.make test/CMakeFiles/testPushPullClient.dir/testPushPullClient.c.s
 .PHONY : testPushPullClient.c.s
 
 testServer.o: testServer.c.o
@@ -301,7 +301,7 @@ testServer.o: testServer.c.o
 
 # target to build an object file
 testServer.c.o:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/testServer.c.o
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/testServer.c.o
 .PHONY : testServer.c.o
 
 testServer.i: testServer.c.i
@@ -309,7 +309,7 @@ testServer.i: testServer.c.i
 
 # target to preprocess a source file
 testServer.c.i:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/testServer.c.i
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/testServer.c.i
 .PHONY : testServer.c.i
 
 testServer.s: testServer.c.s
@@ -317,7 +317,7 @@ testServer.s: testServer.c.s
 
 # target to generate assembly for a file
 testServer.c.s:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/testServer.c.s
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServer.dir/build.make test/CMakeFiles/testServer.dir/testServer.c.s
 .PHONY : testServer.c.s
 
 testServerAndLocal.o: testServerAndLocal.c.o
@@ -325,7 +325,7 @@ testServerAndLocal.o: testServerAndLocal.c.o
 
 # target to build an object file
 testServerAndLocal.c.o:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o
 .PHONY : testServerAndLocal.c.o
 
 testServerAndLocal.i: testServerAndLocal.c.i
@@ -333,7 +333,7 @@ testServerAndLocal.i: testServerAndLocal.c.i
 
 # target to preprocess a source file
 testServerAndLocal.c.i:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.i
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.i
 .PHONY : testServerAndLocal.c.i
 
 testServerAndLocal.s: testServerAndLocal.c.s
@@ -341,7 +341,7 @@ testServerAndLocal.s: testServerAndLocal.c.s
 
 # target to generate assembly for a file
 testServerAndLocal.c.s:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.s
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/testServerAndLocal.dir/build.make test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.s
 .PHONY : testServerAndLocal.c.s
 
 # Help Target
@@ -387,6 +387,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

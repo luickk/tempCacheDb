@@ -53,10 +53,10 @@ RM = /usr/local/Cellar/cmake/3.21.3_1/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/luickklippel/Documents/Projekte/tempCacheDb
+CMAKE_SOURCE_DIR = /Users/luickklippel/Documents/Projekte/tempcachedb
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/luickklippel/Documents/Projekte/tempCacheDb/build
+CMAKE_BINARY_DIR = /Users/luickklippel/Documents/Projekte/tempcachedb/build
 
 # Include any dependencies generated for this target.
 include test/CMakeFiles/testServerAndLocal.dir/depend.make
@@ -72,16 +72,16 @@ include test/CMakeFiles/testServerAndLocal.dir/flags.make
 test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o: test/CMakeFiles/testServerAndLocal.dir/flags.make
 test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o: ../test/testServerAndLocal.c
 test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o: test/CMakeFiles/testServerAndLocal.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o"
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test && /Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o -MF CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o.d -o CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o -c /Users/luickklippel/Documents/Projekte/tempCacheDb/test/testServerAndLocal.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o"
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build/test && /Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o -MF CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o.d -o CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.o -c /Users/luickklippel/Documents/Projekte/tempcachedb/test/testServerAndLocal.c
 
 test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.i"
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test && /Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/luickklippel/Documents/Projekte/tempCacheDb/test/testServerAndLocal.c > CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.i
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build/test && /Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /Users/luickklippel/Documents/Projekte/tempcachedb/test/testServerAndLocal.c > CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.i
 
 test/CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.s"
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test && /Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/luickklippel/Documents/Projekte/tempCacheDb/test/testServerAndLocal.c -o CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.s
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build/test && /Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /Users/luickklippel/Documents/Projekte/tempcachedb/test/testServerAndLocal.c -o CMakeFiles/testServerAndLocal.dir/testServerAndLocal.c.s
 
 # Object files for target testServerAndLocal
 testServerAndLocal_OBJECTS = \
@@ -94,18 +94,18 @@ test/testServerAndLocal: test/CMakeFiles/testServerAndLocal.dir/testServerAndLoc
 test/testServerAndLocal: test/CMakeFiles/testServerAndLocal.dir/build.make
 test/testServerAndLocal: libtempCacheDb.a
 test/testServerAndLocal: test/CMakeFiles/testServerAndLocal.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/luickklippel/Documents/Projekte/tempCacheDb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable testServerAndLocal"
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/testServerAndLocal.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/luickklippel/Documents/Projekte/tempcachedb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable testServerAndLocal"
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/testServerAndLocal.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 test/CMakeFiles/testServerAndLocal.dir/build: test/testServerAndLocal
 .PHONY : test/CMakeFiles/testServerAndLocal.dir/build
 
 test/CMakeFiles/testServerAndLocal.dir/clean:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test && $(CMAKE_COMMAND) -P CMakeFiles/testServerAndLocal.dir/cmake_clean.cmake
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build/test && $(CMAKE_COMMAND) -P CMakeFiles/testServerAndLocal.dir/cmake_clean.cmake
 .PHONY : test/CMakeFiles/testServerAndLocal.dir/clean
 
 test/CMakeFiles/testServerAndLocal.dir/depend:
-	cd /Users/luickklippel/Documents/Projekte/tempCacheDb/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/luickklippel/Documents/Projekte/tempCacheDb /Users/luickklippel/Documents/Projekte/tempCacheDb/test /Users/luickklippel/Documents/Projekte/tempCacheDb/build /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/CMakeFiles/testServerAndLocal.dir/DependInfo.cmake --color=$(COLOR)
+	cd /Users/luickklippel/Documents/Projekte/tempcachedb/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/luickklippel/Documents/Projekte/tempcachedb /Users/luickklippel/Documents/Projekte/tempcachedb/test /Users/luickklippel/Documents/Projekte/tempcachedb/build /Users/luickklippel/Documents/Projekte/tempcachedb/build/test /Users/luickklippel/Documents/Projekte/tempcachedb/build/test/CMakeFiles/testServerAndLocal.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : test/CMakeFiles/testServerAndLocal.dir/depend
 

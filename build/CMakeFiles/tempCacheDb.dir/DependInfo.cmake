@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/luickklippel/Documents/Projekte/tempCacheDb/src/tempCacheDb.c" "CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.o" "gcc" "CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.o.d"
+  "/Users/luickklippel/Documents/Projekte/tempcachedb/src/tempCacheDb.c" "CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.o" "gcc" "CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.o.d"
   )
 
 # Targets to which this target links.

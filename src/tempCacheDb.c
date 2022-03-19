@@ -317,8 +317,8 @@ void listenDbCleanUp(void *arg) {
   if (args->args != NULL) {
     free(args->args);
   }
-  if (args->mergingMem != NULL) {
-    free(args->mergingMem);
+  if (args->mergingBuff != NULL) {
+    free(args->mergingBuff);
   }
   if (args->tempCo != NULL) {
     freeCacheObjectDefault(args->tempCo);
@@ -363,7 +363,7 @@ void *cacheClientListenDb(void *arg) {
   char *tempReadBuff;
   int keySizeSize = sizeof(tempCo->keySize);
   cacheObject *copiedCo;
-  char *mergingMem;
+  char *mergingBuff;
 
   int opCode = 0;
 
@@ -371,7 +371,7 @@ void *cacheClientListenDb(void *arg) {
   toFree->readBuff = readBuff;
   toFree->respBuff = NULL;
   toFree->args = args;
-  toFree->mergingMem = mergingMem;
+  toFree->mergingBuff = mergingBuff;
   toFree->tempCo = tempCo;
   toFree->leftOverBuff = leftOverBuff;
   pthread_cleanup_push(listenDbCleanUp, (void*)toFree);
@@ -387,18 +387,18 @@ void *cacheClientListenDb(void *arg) {
     tempProtocolSize = 0;
     // merging memory
     if (leftOverSize > 0) {
-      mergingMem = malloc(leftOverSize + readBuffSize);
-      if (mergingMem == NULL) {
+      mergingBuff = malloc(leftOverSize + readBuffSize);
+      if (mergingBuff == NULL) {
         close(socket);
         pthread_exit(NULL);
       }
-      memcpy(mergingMem, leftOverBuff, leftOverSize);
+      memcpy(mergingBuff, leftOverBuff, leftOverSize);
       free(leftOverBuff);
       leftOverBuff = NULL;
-      memcpy(mergingMem+leftOverSize, readBuff, readBuffSize);
+      memcpy(mergingBuff+leftOverSize, readBuff, readBuffSize);
       tempReadBuff = readBuff;
       readBuffSize += leftOverSize;
-      readBuff = mergingMem;
+      readBuff = mergingBuff;
     }
 
     if (readBuffSize >= sizeof(uint8_t) && nElementParsed == 0) {
@@ -469,8 +469,8 @@ void *cacheClientListenDb(void *arg) {
         nElementParsed++;
         if (leftOverSize > 0) {
           readBuff = tempReadBuff;
-          free(mergingMem);
-          mergingMem = NULL;
+          free(mergingBuff);
+          mergingBuff = NULL;
         }
         leftOverSize = 0;
         free(tempCo->val);
@@ -606,7 +606,6 @@ int cacheReplyToPull(int sockfd, cacheObject *cO) {
   return success;
 }
 
-// make params same as local pull
 int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keySize, cacheObject **pulledCo) {
   assert(cacheClient);
   if (key == NULL || keySize == 0) {
@@ -752,9 +751,11 @@ void *clientHandle(void *clientArgs) {
   int keySizeSize = sizeof(tempCo->keySize);
   int nElementParsed = 0;
   int leftOverSize = 0;
-  char *leftOverBuff;
-  char *tempReadBuff;
-  char *mergingMem;
+  int mergingBuffSize = 0;
+  int mergingBuffAlloc = 0;
+  char *leftOverBuff = NULL;
+  char *tempReadBuff  = NULL;
+  char *mergingBuff = NULL;
 
   // pull = 1, push = 2, pullReply = 3
   int opCode = 0;
@@ -763,12 +764,11 @@ void *clientHandle(void *clientArgs) {
   toFree->readBuff = readBuff;
   toFree->respBuff = respBuff;
   toFree->args = args;
-  toFree->mergingMem = mergingMem;
+  toFree->mergingBuff = mergingBuff;
   toFree->tempCo = tempCo;
   toFree->leftOverBuff = leftOverBuff;
   pthread_cleanup_push(listenDbCleanUp, (void*)toFree);
-
-  while(1) {
+  while (1) {
     readBuffSize = read(socket, readBuff, SERVER_BUFF_SIZE);
     if (readBuffSize == -1) {
       close(socket);
@@ -781,18 +781,31 @@ void *clientHandle(void *clientArgs) {
 
     // merging memory
     if (leftOverSize > 0) {
-      mergingMem = malloc(leftOverSize + readBuffSize);
-      if (mergingMem == NULL) {
+      mergingBuffSize = leftOverSize + readBuffSize;
+      if (mergingBuffSize < SERVER_BUFF_SIZE) {
+        int diff = SERVER_BUFF_SIZE - mergingBuffSize;
+        mergingBuffSize += diff;
+      }
+      if (mergingBuffAlloc) {
+        mergingBuff = realloc(mergingBuff, mergingBuffSize);
+      } else {
+        mergingBuff = malloc(mergingBuffSize);
+        mergingBuffAlloc = 1;
+      }
+      if (mergingBuff == NULL) {
         close(socket);
         pthread_exit(NULL);
       }
-      memcpy(mergingMem, leftOverBuff, leftOverSize);
+
+      memcpy(mergingBuff, leftOverBuff, leftOverSize);
       free(leftOverBuff);
       leftOverBuff = NULL;
-      memcpy(mergingMem+leftOverSize, readBuff, readBuffSize);
+
+      memcpy(mergingBuff+leftOverSize, readBuff, readBuffSize);
+
       tempReadBuff = readBuff;
       readBuffSize += leftOverSize;
-      readBuff = mergingMem;
+      readBuff = mergingBuff;
     }
 
     if (readBuffSize >= sizeof(uint8_t) && nElementParsed == 0) {
@@ -803,11 +816,8 @@ void *clientHandle(void *clientArgs) {
     }
 
     if ((readBuffSize-readSizePointer) >= keySizeSize && nElementParsed == 1) {
-      if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+      if (readSizePointer+keySizeSize <= readBuffSize) {
         memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
-      } else {
-        close(socket);
-        pthread_exit(NULL);
       }
       readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
@@ -821,22 +831,16 @@ void *clientHandle(void *clientArgs) {
         close(socket);
         pthread_exit(NULL);
       }
-      if (readSizePointer <= SERVER_BUFF_SIZE) {
+      if (readSizePointer+tempProtocolSize <= readBuffSize) {
         memcpy(tempCo->key, readBuff+readSizePointer, tempProtocolSize);
-      } else {
-        close(socket);
-        pthread_exit(NULL);
       }
       readSizePointer += tempProtocolSize;
       nElementParsed++;
     }
 
     if ((readBuffSize-readSizePointer) >= keySizeSize && nElementParsed == 3) {
-      if (!(readSizePointer >= SERVER_BUFF_SIZE)) {
+      if (readSizePointer+keySizeSize <= readBuffSize) {
         memcpy(&tempProtocolSize, readBuff+readSizePointer, keySizeSize);
-      } else {
-        close(socket);
-        pthread_exit(NULL);
       }
       readSizePointer += keySizeSize;
       tempProtocolSize = ntohs(tempProtocolSize);
@@ -851,11 +855,8 @@ void *clientHandle(void *clientArgs) {
           close(socket);
           pthread_exit(NULL);
         }
-        if (readSizePointer <= SERVER_BUFF_SIZE) {
+        if (readSizePointer+tempProtocolSize <= readBuffSize) {
           memcpy(tempCo->val, readBuff+readSizePointer, tempProtocolSize);
-        } else {
-          close(socket);
-          pthread_exit(NULL);
         }
         // printf("(pushed) k: %.*s v: %.*s \n", copiedCo->keySize, (char*)copiedCo->key, copiedCo->valSize, (char*)copiedCo->val);
         pushCacheObject(cache->localCache, tempCo, NULL);
@@ -868,19 +869,17 @@ void *clientHandle(void *clientArgs) {
 
     if (nElementParsed < 5) {
       leftOverSize = readBuffSize-readSizePointer;
-      leftOverBuff = malloc(leftOverSize);
-      if (readSizePointer <= SERVER_BUFF_SIZE) {
-        memcpy(leftOverBuff, readBuff+readSizePointer, leftOverSize);
-      } else {
-        close(socket);
-        pthread_exit(NULL);
+      if (leftOverSize > 0) {
+        leftOverBuff = malloc(leftOverSize);
+        if (readSizePointer+leftOverSize <= readBuffSize) {
+          memcpy(leftOverBuff, readBuff+readSizePointer, leftOverSize);
+        }
       }
+      readSizePointer = 0;
     } else if (nElementParsed == 5){
       nElementParsed = 0;
       if (leftOverSize > 0) {
         readBuff = tempReadBuff;
-        free(mergingMem);
-        mergingMem = NULL;
         tempReadBuff = NULL;
       }
       leftOverSize = 0;
@@ -890,6 +889,7 @@ void *clientHandle(void *clientArgs) {
       tempCo->key = NULL;
     }
   }
+  assert(0);
   pthread_cleanup_pop(0);
   return NULL;
 }
@@ -930,7 +930,7 @@ int listenDb(tempCache *cache, int port) {
       return errNet;
     }
 
-    struct pthreadClientHandleArgs *clientArgs = malloc(sizeof clientArgs);
+    struct pthreadClientHandleArgs *clientArgs = malloc(sizeof(struct pthreadClientHandleArgs));
     if (clientArgs == NULL) {
       close(tmpSocket);
       return errMalloc;

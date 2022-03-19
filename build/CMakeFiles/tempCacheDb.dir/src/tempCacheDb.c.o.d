@@ -1,6 +1,6 @@
 CMakeFiles/tempCacheDb.dir/src/tempCacheDb.c.o: \
-  /Users/luickklippel/Documents/Projekte/tempCacheDb/src/tempCacheDb.c \
-  /Users/luickklippel/Documents/Projekte/tempCacheDb/src/include/tempCacheDb.h \
+  /Users/luickklippel/Documents/Projekte/tempcachedb/src/tempCacheDb.c \
+  /Users/luickklippel/Documents/Projekte/tempcachedb/src/include/tempCacheDb.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/netdb.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/_types.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/sys/_types.h \
