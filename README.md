@@ -12,11 +12,10 @@ Up to now there is still room for massive improvements in memory efficiency and 
 
 - local key/val database
 - remote push/pull of data
-- full concurrency support
-(exmples can be found in test/)
+- full concurrency support (exmples can be found in test/)
 
 To come:
-- set function
+- set function (currently implemented by "overwriting" existing key)
 - synchronisation between two caches
 
 ## Setup
@@ -146,6 +145,10 @@ if (err != 0) {
 
 The size of the cacheDB can be defined in the header (`MAX_CACHE_SIZE`). If the max cache size is reached no new keys can be added to the db but existing key/vals can still be manipulated.
 
+### Testing
+
+A multitude of tests can be found in `test/`. In order to test "every possible" usecase all of the tests(grouped by their client/server nature) have to be used with each other. Additionally reandom key genartion must be uncommented in order to be used.
+
 ### Memory management
 
 To ensure a predictable memory behaviour and prevent potential leaks the code has been analyzed with multiple static analyzing tools and tested/ surveilled in a multitude of scenarios. Threads ensure memory release by utilizing the pthread cleanup feature.
@@ -163,6 +166,7 @@ Threads are only made use of if a new client connects (remotely) and for cache s
 ### Networking/ Comm Protocol
 
 The remote data exchange is made possible by tcp sockets. Therefor, if required, the cache which is manipulated can setup a tcp server which can then handles all incoming manipulation requests of the cache. <br>
+*The implementation also compensates for bad network connections and buffers/ merges network data if required*.
 
 - sizes are encoded in net byte order - the key/ val buffer are not checked for correct endianness
 
