@@ -1,7 +1,5 @@
 #include "include/tempCacheDb.h"
 
-// todo fix push malloc issue
-
 int initSimpleCache(simpleCache **cache, keyCompare keyCmp, freeCacheObject freeCoFn) {
   *cache = malloc(sizeof(simpleCache));
   if (*cache == NULL) {
@@ -202,7 +200,6 @@ int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRe
           return errMalloc;
         }
       }
-      // cpyCacheObject(&sCache->keyValStore[sCache->nCacheSize], cO);
       cacheObject *toPush;
       int err = initCacheObject(&toPush);
       if (err != 0) {

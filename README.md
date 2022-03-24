@@ -93,7 +93,7 @@ To push cacheObject to the cache use `pushCacheObject`. pushedCo is not freed.
 The third argument returns the pointer to the actual pointer of the (new) cacheObject in the keyValStore of the cacheDB.
 
 ```C
-err = pushCacheObject(cache1->localCache, pusedCo, NULL);
+err = pushCacheObject(cache1->localCache, pushedCo, NULL);
 if (err != 0) {
   printf("err code %d \n", err);
   return 1;
