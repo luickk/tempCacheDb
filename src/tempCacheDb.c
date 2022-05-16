@@ -967,3 +967,79 @@ int listenDb(tempCache *cache, int port) {
   }
   return success;
 }
+
+void *listenDbThread(void *args) {
+  struct listenDbThreadArg *listenDbTArgs = (struct listenDbThreadArg*) args;
+  tempCache *cache = listenDbTArgs->cache;
+  assert(cache);
+  int tmpSocket;
+  socklen_t addrSize;
+  struct sockaddr_in tempClient;
+
+  cache->serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+  if (cache->serverSocket == -1) {
+    free(listenDbTArgs);
+    pthread_exit(NULL);
+  }
+
+  memset(&tempClient, 0, sizeof(tempClient));
+  tempClient.sin_family = AF_INET;
+  tempClient.sin_port = htons(listenDbTArgs->port);
+  tempClient.sin_addr.s_addr = INADDR_ANY;
+
+  if (bind(cache->serverSocket, (struct sockaddr *)&tempClient, sizeof(tempClient)) < 0) {
+    free(listenDbTArgs);
+    pthread_exit(NULL);
+  }
+  if (listen(cache->serverSocket, 1) != 0) {
+    free(listenDbTArgs);
+    pthread_exit(NULL);
+  }
+  pthread_t survPthread;
+  if(pthread_create(&survPthread, NULL, cacheSurveillance, (void*)cache) != 0 ) {
+    free(listenDbTArgs);
+    pthread_exit(NULL);  
+  }
+
+  // for (int n = 0; n <= 5; n++) {
+  while (1) {
+    addrSize = sizeof(tempClient);
+
+    tmpSocket = accept(cache->serverSocket, (struct sockaddr *)&tempClient, &addrSize);
+    if (tmpSocket == -1) {
+      free(listenDbTArgs);
+      pthread_exit(NULL);
+    }
+
+    struct pthreadClientHandleArgs *clientArgs = malloc(sizeof(struct pthreadClientHandleArgs));
+    if (clientArgs == NULL) {
+      free(listenDbTArgs);
+      close(tmpSocket);
+      pthread_exit(NULL); 
+    }
+    clientArgs->socket = tmpSocket;
+    clientArgs->cache = (void*)cache;
+
+    if(pthread_create(&cache->pthread, NULL, clientHandle, (void*)clientArgs) != 0 ) {
+      free(clientArgs);
+    }
+  }
+  free(listenDbTArgs);
+  pthread_exit(NULL);
+}
+
+
+int listenDbAsync(tempCache *cache, int port) {
+    struct listenDbThreadArg *listenDbTArg = malloc(sizeof(struct listenDbThreadArg));
+    if (listenDbTArg == NULL) {
+      return errMalloc;
+    }
+    listenDbTArg->cache = cache;
+    listenDbTArg->port = port;
+    
+    if(pthread_create(&cache->pthread, NULL, listenDbThread, (void*)listenDbTArg) != 0 ) {
+      free(listenDbTArg);
+      return errIO;
+    }
+    return 0;
+};

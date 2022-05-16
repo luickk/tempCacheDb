@@ -1,0 +1,3 @@
+add_library(lTempCacheDb tempCacheDb.c)
+target_include_directories(lTempCacheDb PUBLIC include)
+target_link_libraries(lTempCacheDb PRIVATE -lpthread)

@@ -58,6 +58,11 @@ struct pthreadClientHandleArgs {
   int socket;
 };
 
+struct listenDbThreadArg {
+ void *cache;
+ int port; 
+};
+
 struct clientReqReplyLinkVal {
   void *val;
   int valSize;
@@ -104,13 +109,16 @@ int freeCacheClient(tempCacheClient **cacheClient);
 
 // sets up socket and parses incoming data
 int listenDb(tempCache *cache, int port);
+int listenDbAsync(tempCache *cache, int port);
 // returns 1 if cO key has been found in the cache and 0 if not
 // writes to Co val and valSize (mallocs if necessary)
 // !resultingCo must not contain pointer to possibly allocated memory to prevent potential memory leak!
+// simpleCache is contained within tempCache ->localCache
 int getCacheObject(simpleCache *localCache, void *key, int keySize, cacheObject *resultingCo);
 // CashObject must be properly allocated!
-// newCoRef returns the address ref to the cacheObject whichs value has been overwritten by the pushed cO
-int pushCacheObject(simpleCache *sCache, cacheObject *cO, cacheObject ***newCoRef);
+// newCoRef returns the address ref to the cacheObject whichs value has been overwritten by the pushed cO (set it to NULL if not required)
+// simpleCache is contained within tempCache ->localCache
+int pushCacheObject(simpleCache *localCache, cacheObject *cO, cacheObject ***newCoRef);
 int cpyCacheObject(cacheObject **dest, cacheObject *src);
 // thread
 void *cacheSurveillance(void *cacheP);
@@ -137,3 +145,5 @@ int cacheReplyToPull(int sockfd, cacheObject *cO);
 void clientReqReplyLinkFree(cacheObject *cO);
 //thread
 void *clientHandle(void *clientArgs);
+// thread
+void *listenDbThread(void *args);

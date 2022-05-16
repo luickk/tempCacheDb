@@ -1,0 +1,176 @@
+Start testing: May 16 16:05 CEST
+----------------------------------------------------------
+1/4 Testing: testPullClient
+1/4 Test: testPullClient
+Command: "/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/testPullClient"
+Directory: /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test
+"testPullClient" start time: May 16 16:05 CEST
+Output:
+----------------------------------------------------------
+----------------- cacheSurveillance ----------------- 
+Rows: 1 
+row 0 - k: 'test'(4) v: 'testVal6'(8) 
+-----------------                    ----------------- 
+connected successfully 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+(query) k: test v: testVal6 
+test successfull 
+<end of output>
+Test time =   0.36 sec
+----------------------------------------------------------
+Test Passed.
+"testPullClient" end time: May 16 16:05 CEST
+"testPullClient" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/4 Testing: testPushClient
+2/4 Test: testPushClient
+Command: "/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/testPushClient"
+Directory: /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test
+"testPushClient" start time: May 16 16:05 CEST
+Output:
+----------------------------------------------------------
+cClientConnect err code 2 
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Failed.
+"testPushClient" end time: May 16 16:05 CEST
+"testPushClient" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/4 Testing: testPushPullClient
+3/4 Test: testPushPullClient
+Command: "/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/testPushPullClient"
+Directory: /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test
+"testPushPullClient" start time: May 16 16:05 CEST
+Output:
+----------------------------------------------------------
+cClientConnect err code 2 
+<end of output>
+Test time =   0.21 sec
+----------------------------------------------------------
+Test Failed.
+"testPushPullClient" end time: May 16 16:05 CEST
+"testPushPullClient" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/4 Testing: teslocalTestt
+4/4 Test: teslocalTestt
+Command: "/Users/luickklippel/Documents/Projekte/tempCacheDb/build/test/localTest"
+Directory: /Users/luickklippel/Documents/Projekte/tempCacheDb/build/test
+"teslocalTestt" start time: May 16 16:05 CEST
+Output:
+----------------------------------------------------------
+p: 0x600000bdd160 row 0 - k: test v: testVa 
+p: 0x600000bdd1a0 row 1 - k: peter2 v: testVal2 
+p: 0x600000bdd1e0 row 2 - k: peterr v: rrrrVal3 
+found val: rrrr 
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"teslocalTestt" end time: May 16 16:05 CEST
+"teslocalTestt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: May 16 16:05 CEST

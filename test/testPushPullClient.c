@@ -2,32 +2,7 @@
 #include <stdlib.h>
 
 #include "tempCacheDb.h"
-
-int strKeyCmp(void *key1, void *key2, int size) {
-  /* does not work with void pointers? returns always 0 */
-  // int t = strncmp(key1, key2, size);
-
-  char *ckey1 = (char*)key1;
-  char *ckey2 = (char*)key2;
-  for (int i = 0; i <= size; i++) {
-    if (ckey1[i]!=ckey2[i]) {
-      return 0;
-    }
-  }
-  return 1;
-}
-
-void freeCoFn(cacheObject *cO) {
-  // for this example we only need to free the cacheObject struct because the key/val are string literals and cannot be freed
-  free(cO);
-}
-
-void printCache(tempCache *cache) {
-  for (int i = 0; i < cache->localCache->nCacheSize; i++) {
-    printf("p: %p row %d - k: %s v: %s \n", cache->localCache->keyValStore[i], i, (char*)cache->localCache->keyValStore[i]->key, (char*)cache->localCache->keyValStore[i]->val);
-  }
-}
-
+#include "utils.c"
 
 void *push(void *argss) {
   tempCacheClient *cacheClient = (tempCacheClient*) argss;
@@ -58,8 +33,13 @@ void *push(void *argss) {
 }
 
 int main() {
+  int err = setupTestServer(NULL);
+  if (err != 0) {
+    return err;
+  }
+
   cacheObject *insert2;
-  int err = initCacheObject(&insert2);
+  err = initCacheObject(&insert2);
   if (err != 0) {
     return err;
   }
@@ -92,7 +72,7 @@ int main() {
   if (err != 0) {
     return err;
   }
-  while (1) {
+  for (int i = 0; i <= 100; i++) {
     err = cacheClientPullCacheObject(cacheClient, insert2->key, insert2->keySize, &pulledCo);
     if (err != 0) {
       printf("cacheClientPullCacheObject err code %d \n", err);

@@ -1,4 +1,4 @@
-# Install script for directory: /Users/luickklippel/Documents/Projekte/tempcachedb/test
+# Install script for directory: /Users/luickklippel/Documents/Projekte/tempCacheDb/test
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
