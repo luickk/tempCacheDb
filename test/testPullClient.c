@@ -6,11 +6,10 @@
 
 int main() {
   tempCache *cache1;
-  int err = setupTestServer(&cache1);
+  int err = setupTestServer(&cache1, 8081);
   if (err != 0) {
     return err;
   }
-
 
   cacheObject *insert2;
   err = initCacheObject(&insert2);
@@ -28,13 +27,13 @@ int main() {
   err = initCacheClient(&cacheClient);
   if (err != 0) {
     printf("cClientInit err code %d \n", err);
-    return 1;
+    return err;
   }
 
-  err = cacheClientConnect(cacheClient, "127.0.0.1", 8080);
+  err = cacheClientConnect(cacheClient, "127.0.0.1", 8081);
   if (err != 0) {
     printf("cClientConnect err code %d \n", err);
-    return 1;
+    return err;
   }
   printf("connected successfully \n");
 
@@ -50,6 +49,14 @@ int main() {
     // usleep(100000);
     freeCoFn(pulledCo);
   }
+  err = cacheClientCloseConn(cacheClient);
+  if (err != 0) {
+    return err;
+  }
+
+  // waiting to properly close socket
+  pthread_join(cache1->pthread, NULL);
+
   printf("test successfull \n");
   return 0;
 }

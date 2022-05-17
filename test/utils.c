@@ -25,7 +25,7 @@ void printCache(tempCache *cache) {
 }
 
 // set cache to NULL if note needed
-int setupTestServer(tempCache **cache) {
+int setupTestServer(tempCache **cache, int port) {
   tempCache *cache1;
   int err = initTempCache(&cache1, strKeyCmp, freeCoFn);
   if (err != 0) {
@@ -33,7 +33,7 @@ int setupTestServer(tempCache **cache) {
     return 1;
   }
 
-  err = listenDbAsync(cache1, 8080);
+  err = listenDbAsync(cache1, port);
   if (err != 0) {
     printf("err code %d \n", err);
     return 1;

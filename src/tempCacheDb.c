@@ -454,7 +454,7 @@ void *cacheClientListenDb(void *arg) {
     }
 
     if ((readBuffSize-readSizePointer) >= tempProtocolSize && nElementParsed == 4) {
-      if (opCode == 3) {
+      if (opCode == pullReplyOp) {
         tempCo->valSize = tempProtocolSize;
         tempCo->val = malloc(tempProtocolSize);
         if (tempCo->key == NULL) {
@@ -564,7 +564,7 @@ int cacheClientPushCacheObject(tempCacheClient *cacheClient, cacheObject *cO) {
     return errMalloc;
   }
   sendBuffSize = 0;
-  netByteOrderSize = 2;
+  netByteOrderSize = pushOp;
   memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint8_t));
   sendBuffSize += sizeof(uint8_t);
 
@@ -604,7 +604,7 @@ int cacheReplyToPull(int sockfd, cacheObject *cO) {
     return errMalloc;
   }
   sendBuffSize = 0;
-  netByteOrderSize = 3;
+  netByteOrderSize = pullReplyOp;
   memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint8_t));
   sendBuffSize += sizeof(uint8_t);
 
@@ -645,7 +645,7 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
   int err;
 
   sendBuffSize = 0;
-  netByteOrderSize = 1;
+  netByteOrderSize = pullOp;
   memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint8_t));
   sendBuffSize += sizeof(uint8_t);
 
@@ -723,6 +723,41 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
   return success;
 }
 
+int cacheClientCloseConn(tempCacheClient *cacheClient) {
+  assert(cacheClient);
+  // uint8 (opCode) + uint16(sizes)*2 = 5
+  char *sendBuff = malloc(sizeof(char) * 5);
+  if (sendBuff == NULL) {
+    return errMalloc;
+  }
+  int err = 0;
+  int netByteOrderSize = 0;
+  int sendBuffSize = 0;
+
+  netByteOrderSize = closeConnOp;
+  memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint8_t));
+  sendBuffSize += sizeof(uint8_t);
+
+  netByteOrderSize = 0;
+  memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint16_t));
+  sendBuffSize += sizeof(uint16_t);
+
+  netByteOrderSize = 0;
+  memcpy(sendBuff+sendBuffSize, &netByteOrderSize, sizeof(uint16_t));
+  sendBuffSize += sizeof(uint16_t);
+
+
+  pthread_mutex_lock(&cacheClient->cacheClientMutex);
+  if (write(cacheClient->sockfd, sendBuff, sendBuffSize) == -1) {
+    return errIO;
+  }
+  pthread_mutex_unlock(&cacheClient->cacheClientMutex);
+
+  free(sendBuff);
+
+  return success;
+}
+
 void *cacheSurveillance(void *cacheP) {
   if (cacheP == NULL) {
     return NULL;
@@ -781,7 +816,6 @@ void *clientHandle(void *clientArgs) {
   char *leftOverBuff = NULL;
   char *mergingBuff = NULL;
 
-  // pull = 1, push = 2, pullReply = 3
   int opCode = 0;
 
   struct cacheClientListenDbCleanUpToFree *toFree = malloc(sizeof(struct cacheClientListenDbCleanUpToFree));
@@ -848,16 +882,18 @@ void *clientHandle(void *clientArgs) {
     }
 
     if ((readBuffSize-readSizePointer) >= tempProtocolSize && nElementParsed == 2) {
-      tempCo->keySize = tempProtocolSize;
-      tempCo->key = malloc(tempProtocolSize);
-      if (tempCo->key == NULL) {
-        close(socket);
-        pthread_exit(NULL);
+      if (tempProtocolSize != 0) {
+        tempCo->keySize = tempProtocolSize;
+        tempCo->key = malloc(tempProtocolSize);
+        if (tempCo->key == NULL) {
+          close(socket);
+          pthread_exit(NULL);
+        }
+        if (readSizePointer+tempProtocolSize <= readBuffSize) {
+          memcpy(tempCo->key, readBuff+readSizePointer, tempProtocolSize);
+        }
+        readSizePointer += tempProtocolSize; 
       }
-      if (readSizePointer+tempProtocolSize <= readBuffSize) {
-        memcpy(tempCo->key, readBuff+readSizePointer, tempProtocolSize);
-      }
-      readSizePointer += tempProtocolSize;
       nElementParsed++;
     }
 
@@ -871,7 +907,7 @@ void *clientHandle(void *clientArgs) {
     }
 
     if ((readBuffSize-readSizePointer) >= tempProtocolSize && nElementParsed == 4) {
-      if (opCode == 2) {
+      if (opCode == pushOp) {
         tempCo->valSize = tempProtocolSize;
         tempCo->val = malloc(tempProtocolSize);
         if (tempCo->val == NULL) {
@@ -883,9 +919,12 @@ void *clientHandle(void *clientArgs) {
         }
         // printf("(pushed) k: %.*s v: %.*s \n", copiedCo->keySize, (char*)copiedCo->key, copiedCo->valSize, (char*)copiedCo->val);
         pushCacheObject(cache->localCache, tempCo, NULL);
-      } else if (opCode == 1) {
+      } else if (opCode == pullOp) {
         getCacheObject(cache->localCache, tempCo->key, tempCo->keySize, tempCo);
         cacheReplyToPull(socket, tempCo);
+      } else if (opCode == closeConnOp) {
+        close(socket);
+        break;
       }
       nElementParsed++;
     }
@@ -1036,7 +1075,7 @@ int listenDbAsync(tempCache *cache, int port) {
     }
     listenDbTArg->cache = cache;
     listenDbTArg->port = port;
-    
+
     if(pthread_create(&cache->pthread, NULL, listenDbThread, (void*)listenDbTArg) != 0 ) {
       free(listenDbTArg);
       return errIO;

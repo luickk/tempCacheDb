@@ -89,6 +89,13 @@ enum errCodes {
   errInit
 };
 
+enum tcpCacheProtocolOps {
+  pullOp,
+  pushOp,
+  pullReplyOp,
+  closeConnOp
+};
+
 /* inits and frees */
 
 // simpleCache is a local only cache
@@ -132,6 +139,7 @@ int cacheClientConnect(tempCacheClient *cacheClient, char *addressString, int po
 int cacheClientPushCacheObject(tempCacheClient *cacheClient, cacheObject *cO);
 // pulledCo has to be freed!
 int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keySize, cacheObject **pulledCo);
+int cacheClientCloseConn(tempCacheClient *cacheClient);
 
 /* private lib functions */
 

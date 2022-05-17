@@ -5,7 +5,8 @@
 #include "utils.c"
 
 int main() {
-  int err = setupTestServer(NULL);
+  tempCache *cache1;
+  int err = setupTestServer(&cache1, 8080);
   if (err != 0) {
     return err;
   }
@@ -24,31 +25,37 @@ int main() {
   err = initCacheClient(&cacheClient);
   if (err != 0) {
     printf("cClientInit err code %d \n", err);
-    return 1;
+    return err;
   }
 
   err = cacheClientConnect(cacheClient, "127.0.0.1", 8080);
   if (err != 0) {
     printf("cClientConnect err code %d \n", err);
-    return 1;
+    return err;
   }
   printf("connected successfully \n");
 
   char *r = malloc(sizeof(int));
   insert2->keySize = sizeof(int)+7;
   insert2->key = r;
-  int i = 0;
   for (int i = 0; i <= 100; i++) {
-    sprintf(r, "peter%d", i++);
+    sprintf(r, "peter%d", i);
     // printf("%s \n", (char*)insert2->key);
     err = cacheClientPushCacheObject(cacheClient, insert2);
     if (err != 0) {
       printf("cacheClientPushO err code %d \n", err);
-      return 1;
+      return err;
     }
     usleep(100);
   }
 
+  err = cacheClientCloseConn(cacheClient);
+  if (err != 0) {
+    return err;
+  }
+
+  // waiting to properly close socket
+  pthread_join(cache1->pthread, NULL);
   printf("test successfull\n");
   return 0;
 }

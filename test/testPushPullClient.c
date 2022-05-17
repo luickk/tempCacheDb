@@ -20,9 +20,8 @@ void *push(void *argss) {
   char *r = malloc(sizeof(int));
   insert2->keySize = sizeof(int)+7;
   insert2->key = r;
-  int i = 0;
-  while (1) {
-    sprintf(r, "peter%d", i++);
+  for (int i = 0; i <= 100; i++) {
+    sprintf(r, "peter%d", i);
     printf("%s \n", (char*)insert2->key);
     err = cacheClientPushCacheObject(cacheClient, insert2);
     if (err != 0) {
@@ -30,10 +29,12 @@ void *push(void *argss) {
     }
     usleep(1000);
   }
+  pthread_exit(NULL);
 }
 
 int main() {
-  int err = setupTestServer(NULL);
+  tempCache *cache1;
+  int err = setupTestServer(&cache1, 8082);
   if (err != 0) {
     return err;
   }
@@ -48,17 +49,22 @@ int main() {
   insert2->val = "testVal6";
   insert2->valSize = 8;
 
+  err = pushCacheObject(cache1->localCache, insert2, NULL);
+  if (err != 0) {
+    return err;
+  }
+
   tempCacheClient *cacheClient;
   err = initCacheClient(&cacheClient);
   if (err != 0) {
     printf("cClientInit err code %d \n", err);
-    return 1;
+    return err;
   }
 
-  err = cacheClientConnect(cacheClient, "127.0.0.1", 8080);
+  err = cacheClientConnect(cacheClient, "127.0.0.1", 8082);
   if (err != 0) {
     printf("cClientConnect err code %d \n", err);
-    return 1;
+    return err;
   }
   printf("connected successfully \n");
   pthread_t pthread = 0;
@@ -76,12 +82,24 @@ int main() {
     err = cacheClientPullCacheObject(cacheClient, insert2->key, insert2->keySize, &pulledCo);
     if (err != 0) {
       printf("cacheClientPullCacheObject err code %d \n", err);
-      return 1;
+      return err;
     }
 
     printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, pulledCo->valSize, (char*)pulledCo->val);
     usleep(1000);
   }
 
+  // waiting to properly end pull test (usually ends before pull completes)
+  // pthread_join(pthread, NULL);
+
+  err = cacheClientCloseConn(cacheClient);
+  if (err != 0) {
+    return err;
+  }
+
+  // waiting to properly close socket
+  pthread_join(cache1->pthread, NULL);
+
+  printf("test successfull\n");
   return 0;
 }
