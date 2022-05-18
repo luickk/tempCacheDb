@@ -13,3 +13,7 @@ target_link_libraries (testPushPullClient lTempCacheDb)
 add_executable (localTest localTest.c)                 
 add_test(NAME teslocalTestt COMMAND localTest)       
 target_link_libraries (localTest lTempCacheDb)
+
+
+add_executable (benchPull benchPull.c)               
+target_link_libraries (benchPull lTempCacheDb)
