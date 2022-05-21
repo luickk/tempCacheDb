@@ -8,6 +8,14 @@ This type of db is suited for all kinds of data distribution in a local network 
 
 Up to now there is still room for massive improvements in memory efficiency and speed.
 
+## Benchmark
+
+Single key/val pull on localhost: 256 μs(micros.)
+
+### Optimization Record
+
+- Changed from spinning wait loop for pull request reply, to pthread condvar
+
 ## Features
 
 - local key/val database

@@ -66,7 +66,8 @@ struct listenDbThreadArg {
 struct clientReqReplyLinkVal {
   void *val;
   int valSize;
-  int updated;
+  pthread_cond_t condReceive;
+  pthread_mutex_t condLockReceive;
 };
 
 struct cacheClientListenDbCleanUpToFree {
