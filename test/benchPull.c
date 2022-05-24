@@ -38,18 +38,23 @@ int main() {
   printf("connected successfully \n");
 
   cacheObject *pulledCo;
-  double startTime, endTime;
-  
-  startTime = (float)clock()/CLOCKS_PER_SEC;
-  err = cacheClientPullCacheObject(cacheClient, insert2->key, insert2->keySize, &pulledCo);
-  endTime = (float)clock()/CLOCKS_PER_SEC;
+  double startTime, endTime, totalTime, diff;
+  int nBenchIter = 500;
 
+  for (int i = 0; i<nBenchIter; i++) {
+    startTime = (float)clock()/CLOCKS_PER_SEC;
+    err = cacheClientPullCacheObject(cacheClient, insert2->key, insert2->keySize, &pulledCo);
+    endTime = (float)clock()/CLOCKS_PER_SEC;
+    diff = endTime-startTime;
+    totalTime += diff;
+    printf("%f\n", diff);
+  }
   if (err != 0) {
     printf("cacheClientPushO err code %d \n", err);
     return err;
   }
   printf("(query) k: %.*s v: %.*s \n", pulledCo->keySize, (char*)pulledCo->key, pulledCo->valSize, (char*)pulledCo->val);
-  printf("took %f seconds \n", endTime-startTime);
+  printf("took %f seconds \n", totalTime/nBenchIter);
   
 
   freeCoFn(pulledCo);

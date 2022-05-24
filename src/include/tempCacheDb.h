@@ -66,6 +66,7 @@ struct listenDbThreadArg {
 struct clientReqReplyLinkVal {
   void *val;
   int valSize;
+  
   pthread_cond_t condReceive;
   pthread_mutex_t condLockReceive;
 };

@@ -367,7 +367,6 @@ void *cacheClientListenDb(void *arg) {
   char *leftOverBuff = NULL;
   char *mergingBuff = NULL;
 
-  // pull = 1, push = 2, pullReply = 3
   int opCode = 0;
 
   struct cacheClientListenDbCleanUpToFree *toFree = malloc(sizeof(struct cacheClientListenDbCleanUpToFree));
@@ -602,6 +601,7 @@ int cacheReplyToPull(int sockfd, cacheObject *cO) {
   int keySizeSize = sizeof(cO->keySize);
   int sendBuffSize = sizeof(uint8_t) + keySizeSize + cO->keySize + keySizeSize + cO->valSize;
   int netByteOrderSize = 0;
+  uint8_t fundKey = 0;
   char *sendBuff = malloc(sizeof(char) * sendBuffSize);
   if (sendBuff == NULL) {
     return errMalloc;
@@ -641,11 +641,64 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
   int sendBuffSize = sizeof(uint8_t) + keySizeSize + keySize + keySizeSize;
   int netByteOrderSize = 0;
   cacheObject **cacheRef;
-  char *sendBuff = malloc(sizeof(char) * sendBuffSize);
+  char *sendBuff = malloc(sendBuffSize);
   if (sendBuff == NULL) {
     return errMalloc;
   }
   int err;
+  int createNewCo = 1;
+
+  struct clientReqReplyLinkVal *cacheRefVal ;
+  while (1) {
+    for (int i = 0; i < cacheClient->clientReqReplyLink->nCacheSize; i++) {
+      if (cacheClient->clientReqReplyLink->keyCmp(cacheClient->clientReqReplyLink->keyValStore[i]->key, key, keySize)) {
+        cacheRefVal = (struct clientReqReplyLinkVal*)cacheClient->clientReqReplyLink->keyValStore[i]->val;
+        createNewCo = 0;
+        break;
+      }
+    }
+    if (!createNewCo) {
+      break;
+    }
+    cacheObject *clientReqReply;
+    err = initCacheObject(&clientReqReply);
+    if (err != 0) {
+      return err;
+    }
+    clientReqReply->key = malloc(keySize);
+    if (clientReqReply->key == NULL) {
+      return errMalloc;
+    }
+
+    memcpy(clientReqReply->key, key, keySize);
+    clientReqReply->keySize = keySize;
+
+    clientReqReply->val = malloc(sizeof(struct clientReqReplyLinkVal));
+    clientReqReply->valSize = sizeof(struct clientReqReplyLinkVal);
+    err = pthread_mutex_init(&((struct clientReqReplyLinkVal*) clientReqReply->val)->condLockReceive, NULL);
+    if (err != 0) {
+      return err;
+    }
+    err = pthread_cond_init(&((struct clientReqReplyLinkVal*) clientReqReply->val)->condReceive, NULL);
+    if (err != 0) {
+      return err;
+    }
+
+    err = pushCacheObject(cacheClient->clientReqReplyLink, clientReqReply, &cacheRef);
+    if (err != 0) {
+      return errIO;
+    }
+    freeCacheObjectDefault(clientReqReply);
+    cacheRefVal = (struct clientReqReplyLinkVal*)(*cacheRef)->val;
+    break;
+  }
+
+
+  cacheRefVal->valSize = 0;
+  if (cacheRefVal->val != NULL) {
+    free(cacheRefVal->val);
+    cacheRefVal->val = NULL;
+  }
 
   sendBuffSize = 0;
   netByteOrderSize = pullOp;
@@ -663,37 +716,6 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
   memcpy(sendBuff+sendBuffSize, &netByteOrderSize, keySizeSize);
   sendBuffSize += keySizeSize;
 
-  cacheObject *clientReqReply;
-  err = initCacheObject(&clientReqReply);
-  if (err != 0) {
-    return err;
-  }
-  clientReqReply->key = malloc(keySize);
-  if (clientReqReply->key == NULL) {
-    return errMalloc;
-  }
-
-  memcpy(clientReqReply->key, key, keySize);
-  clientReqReply->keySize = keySize;
-
-  clientReqReply->val = malloc(sizeof(struct clientReqReplyLinkVal));
-  clientReqReply->valSize = sizeof(struct clientReqReplyLinkVal);
-  err = pthread_mutex_init(&((struct clientReqReplyLinkVal*) clientReqReply->val)->condLockReceive, NULL);
-  if (err != 0) {
-    return err;
-  }
-  err = pthread_cond_init(&((struct clientReqReplyLinkVal*) clientReqReply->val)->condReceive, NULL);
-  if (err != 0) {
-    return err;
-  }
-
-  err = pushCacheObject(cacheClient->clientReqReplyLink, clientReqReply, &cacheRef);
-  if (err != 0) {
-    return errIO;
-  }
-  freeCacheObjectDefault(clientReqReply);
-  struct clientReqReplyLinkVal *cacheRefVal = (struct clientReqReplyLinkVal*)(*cacheRef)->val;
-
   pthread_mutex_lock(&cacheClient->cacheClientMutex);
   if (write(cacheClient->sockfd, sendBuff, sendBuffSize) == -1) {
     return errIO;
@@ -701,30 +723,28 @@ int cacheClientPullCacheObject(tempCacheClient *cacheClient, void *key, int keyS
   pthread_mutex_unlock(&cacheClient->cacheClientMutex);
 
   pthread_mutex_lock(&cacheRefVal->condLockReceive);
-
   pthread_cond_wait(&cacheRefVal->condReceive, &cacheRefVal->condLockReceive);
-
   err = initCacheObject(pulledCo);
   if (err != 0) {
     return err;
   }
   (*pulledCo)->keySize = (*cacheRef)->keySize;
-  if ((*cacheRef)->key != NULL) {
-    (*pulledCo)->key = malloc((*cacheRef)->keySize);
-    if ((*pulledCo)->key == NULL) {
-      return errMalloc;
-    }
-    memcpy((*pulledCo)->key, (*cacheRef)->key, (*cacheRef)->keySize);
-  }
+  // if ((*cacheRef)->key != NULL) {
+  //   (*pulledCo)->key = malloc((*cacheRef)->keySize);
+  //   if ((*pulledCo)->key == NULL) {
+  //     return errMalloc;
+  //   }
+  //   // memcpy((*pulledCo)->key, (*cacheRef)->key, (*cacheRef)->keySize);
+  // }
 
-  if ((*cacheRef)->val != NULL && ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->val != NULL) {
-    (*pulledCo)->valSize = ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->valSize;
-    (*pulledCo)->val = malloc(((struct clientReqReplyLinkVal*)(*cacheRef)->val)->valSize);
-    if ((*pulledCo)->val == NULL) {
-      return errMalloc;
-    }
-    memcpy((*pulledCo)->val, ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->val, ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->valSize);
-  }
+  // if ((*cacheRef)->val != NULL && ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->val != NULL) {
+  //   (*pulledCo)->valSize = cacheRefVal->valSize;
+  //   (*pulledCo)->val = malloc((*pulledCo)->valSize);
+  //   if ((*pulledCo)->val == NULL) {
+  //     return errMalloc;
+  //   }
+  //   // memcpy((*pulledCo)->val, ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->val, ((struct clientReqReplyLinkVal*)(*cacheRef)->val)->valSize);
+  // }
 
   pthread_mutex_unlock(&cacheRefVal->condLockReceive);
 
