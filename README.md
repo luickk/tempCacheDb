@@ -10,7 +10,7 @@ Up to now there is still room for massive improvements in memory efficiency and 
 
 ## Benchmark
 
-Single key/val pull on localhost: 256 μs(micros.)
+Average key/val pull on localhost: 55 μs(micross.)
 
 ### Optimization Record
 
